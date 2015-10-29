@@ -33,7 +33,7 @@
             // 
             // btnInstallCert
             // 
-            this.btnInstallCert.Location = new System.Drawing.Point(215, 161);
+            this.btnInstallCert.Location = new System.Drawing.Point(191, 140);
             this.btnInstallCert.Name = "btnInstallCert";
             this.btnInstallCert.Size = new System.Drawing.Size(75, 23);
             this.btnInstallCert.TabIndex = 0;
