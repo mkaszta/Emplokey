@@ -57,17 +57,17 @@
     <Compile Include="Form_main.Designer.cs">
       <DependentUpon>Form_main.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form_installCert.cs">
+    <Compile Include="Form_certManager.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form_installCert.Designer.cs">
-      <DependentUpon>Form_installCert.cs</DependentUpon>
+    <Compile Include="Form_certManager.Designer.cs">
+      <DependentUpon>Form_certManager.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="settingsHelper.cs" />
-    <EmbeddedResource Include="Form_installCert.resx">
-      <DependentUpon>Form_installCert.cs</DependentUpon>
+    <EmbeddedResource Include="Form_certManager.resx">
+      <DependentUpon>Form_certManager.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form_main.resx">
       <DependentUpon>Form_main.cs</DependentUpon>

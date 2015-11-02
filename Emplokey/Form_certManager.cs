@@ -12,11 +12,13 @@ using System.IO;
 
 namespace Emplokey
 {
-    public partial class Form_installCert : Form
+    public partial class Form_certManager : Form
     {
-        private DriveDetector driveDetector = null;        
+        private DriveDetector driveDetector = null;
+        Form_main formMain = new Form_main();        
+        CertManager certMgr = new CertManager();             
 
-        public Form_installCert()
+        public Form_certManager(Form_main _formMain)
         {
             InitializeComponent();
 
@@ -24,10 +26,12 @@ namespace Emplokey
             driveDetector.DeviceArrived += new DriveDetectorEventHandler(OnDriveArrived);
             driveDetector.DeviceRemoved += new DriveDetectorEventHandler(OnDriveRemoved);
 
+            formMain = _formMain;
+            
             getDrivesList();            
         }
 
-        private void getDrivesList()
+        public void getDrivesList()
         {
             listBoxDrives.Items.Clear();
             var drivesList = DriveInfo.GetDrives();
@@ -52,7 +56,7 @@ namespace Emplokey
                     {
                         listBoxDrives.Items.RemoveAt(i);
                         break;
-                    }                       
+                    }
                 }
             }
         }
@@ -84,31 +88,47 @@ namespace Emplokey
             {
                 if (listBoxDrives.SelectedIndex != -1)
                 {
-                    var cert = new Cert() { user = "mkaszta", password = "pass", path = listBoxDrives.SelectedItem.ToString() };                    
-
-                    if (File.Exists(cert.path + settingsHelper.defaultCertName))
+                    if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
                     {
                         DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
                         if (dialogResult == DialogResult.Yes)
-                        {                            
-                            var certMgr = new CertManager();                            
-                            certMgr.createCert(cert);
-                            MessageBox.Show("Certificate created and saved under:\n" + cert.path + settingsHelper.defaultCertName);
+                        {
+                            certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString());
+                            MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
                         }
-                    } else
-                    {                        
-                        var certMgr = new CertManager();
-                        certMgr.createCert(cert);
-                        MessageBox.Show("Certificate created and saved under:\n" + cert.path + settingsHelper.defaultCertName);
-                    }                   
+                    }
+                    else
+                    {
+                        certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString());
+                        MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
+                    }
                 }
                 else MessageBox.Show("Please select a flash drive to create a certificate.");
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            }
+            }            
+        }
+
+        private void btnRegister_Click(object sender, EventArgs e)
+        {
+            if (listBoxDrives.SelectedItem == null)
+                MessageBox.Show("Please select a certificate's path.");
+            else if (!File.Exists(listBoxDrives.SelectedItem.ToString() + settingsHelper.defaultCertName))
+                MessageBox.Show("There is no certificate installed on the selected drive!");
+            else
+            {
+                try
+                {
+                    certMgr.registerCert(listBoxDrives.SelectedItem.ToString());                    
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }            
         }
     }
 }
