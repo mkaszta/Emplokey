@@ -12,10 +12,10 @@ namespace Emplokey
 {
     public class CertManager
     {
-        public void createCert(Form_main formMain, string path)
+        public void createCert(Form_main formMain, string path, string password)
         {
             formMain.certUSB.user = WindowsIdentity.GetCurrent().Name;
-            formMain.certUSB.password = "test_password";
+            formMain.certUSB.password = password;
             formMain.certUSB.path = path + settingsHelper.defaultCertName;
 
             XDocument xCert = new XDocument(

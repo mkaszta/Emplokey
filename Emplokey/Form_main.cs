@@ -72,15 +72,18 @@ namespace Emplokey
                 labelAuthorizationInfo.Text = "user not authorized";
                 labelAuthorizationInfo.ForeColor = Color.Red;
 
-                cancellationTokenSource = new CancellationTokenSource();
-                cancellationToken = cancellationTokenSource.Token;
-                Task.Factory.StartNew(() => lockingProcess(), cancellationToken);
+                if(certLocal.loaded)
+                {
+                    cancellationTokenSource = new CancellationTokenSource();
+                    cancellationToken = cancellationTokenSource.Token;
+                    Task.Factory.StartNew(() => lockingProcess(), cancellationToken);
+                }                
             }                
         }
 
         private void btnInstallCert_Click(object sender, EventArgs e)
         {
-            var form_certManager = new Form_certManager(this);
+            var form_certManager = new Form_certificates(this);
             form_certManager.ShowDialog();
             checkForAuthorization();
         }

@@ -12,13 +12,16 @@ using System.IO;
 
 namespace Emplokey
 {
-    public partial class Form_certManager : Form
+    public partial class Form_certificates : Form
     {
         private DriveDetector driveDetector = null;
         Form_main formMain = new Form_main();        
-        CertManager certMgr = new CertManager();             
+        CertManager certMgr = new CertManager();
 
-        public Form_certManager(Form_main _formMain)
+        public string certPassword = "";
+        public bool cancelPassword = false;
+
+        public Form_certificates(Form_main _formMain)
         {
             InitializeComponent();
 
@@ -83,25 +86,31 @@ namespace Emplokey
         }
 
         private void btnCreateCert_Click(object sender, EventArgs e)
-        {
+        {                        
             try
             {
                 if (listBoxDrives.SelectedIndex != -1)
                 {
-                    if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
+                    Form_setPassword form_setPassword = new Form_setPassword(this);
+                    form_setPassword.ShowDialog(this);
+
+                    if (!cancelPassword)
                     {
-                        DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
-                        if (dialogResult == DialogResult.Yes)
+                        if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
                         {
-                            certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString());
+                            DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
+                            if (dialogResult == DialogResult.Yes)
+                            {
+                                certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString(), certPassword);
+                                MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
+                            }
+                        }
+                        else
+                        {
+                            certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString(), certPassword);
                             MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
                         }
-                    }
-                    else
-                    {
-                        certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString());
-                        MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
-                    }
+                    }                                            
                 }
                 else MessageBox.Show("Please select a flash drive to create a certificate.");
 
