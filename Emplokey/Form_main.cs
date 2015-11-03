@@ -14,8 +14,7 @@ namespace Emplokey
         public Cert certUSB = new Cert() { loaded = false };
         public CertManager certMgr = new CertManager();        
         public bool authorized = false;
-
-        Task taskLocking = null;
+        
         public static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public static CancellationToken cancellationToken = cancellationTokenSource.Token;
 
@@ -66,11 +65,15 @@ namespace Emplokey
             {
                 labelAuthorizationInfo.Text = "user authorized";
                 labelAuthorizationInfo.ForeColor = Color.Green;
+                cancellationTokenSource.Cancel();                            
             }
             else
             {
                 labelAuthorizationInfo.Text = "user not authorized";
                 labelAuthorizationInfo.ForeColor = Color.Red;
+
+                cancellationTokenSource = new CancellationTokenSource();
+                cancellationToken = cancellationTokenSource.Token;
                 Task.Factory.StartNew(() => lockingProcess(), cancellationToken);
             }                
         }
@@ -83,10 +86,9 @@ namespace Emplokey
         }
 
         private void OnDriveArrived(object sender, DriveDetectorEventArgs e)
-        {
-            
-            cancellationTokenSource.Cancel();
+        {                        
             e.HookQueryRemove = false;
+
             if (!authorized)
                 checkForAuthorization();
         }
@@ -131,6 +133,12 @@ namespace Emplokey
             {
                 driveDetector.WndProc(ref m);
             }
+        }
+
+        private void Form_main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            MessageBox.Show("Can't close the application.");
+            e.Cancel = true;
         }
     }
 }

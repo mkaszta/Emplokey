@@ -125,7 +125,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(479, 196);
+            this.ClientSize = new System.Drawing.Size(343, 196);
+            this.ControlBox = false;
             this.Controls.Add(this.labelCounting);
             this.Controls.Add(this.labelAuthorizationInfo);
             this.Controls.Add(this.labelAuthorization);
@@ -134,8 +135,11 @@
             this.Controls.Add(this.labelRegisteredUserInfo);
             this.Controls.Add(this.labelRegisteredUser);
             this.Controls.Add(this.btnInstallCert);
+            this.DoubleBuffered = true;
+            this.MaximizeBox = false;
             this.Name = "Form_main";
             this.Text = "Emplokey";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_main_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
