@@ -16,7 +16,6 @@ namespace Emplokey
     {
         private DriveDetector driveDetector = null;
         Form_main formMain = new Form_main();        
-        CertManager certMgr = new CertManager();
 
         public string certPassword = "";
         public bool cancelPassword = false;
@@ -101,13 +100,13 @@ namespace Emplokey
                             DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
                             if (dialogResult == DialogResult.Yes)
                             {
-                                certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString(), certPassword);
+                                formMain.certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString(), certPassword);
                                 MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
                             }
                         }
                         else
                         {
-                            certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString(), certPassword);
+                            formMain.certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString(), certPassword);
                             MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
                         }
                     }                                            
@@ -131,13 +130,31 @@ namespace Emplokey
             {
                 try
                 {
-                    certMgr.registerCert(listBoxDrives.SelectedItem.ToString());                    
+                    formMain.certMgr.registerCert(listBoxDrives.SelectedItem.ToString());                    
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
                 }
             }            
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                formMain.serverInfo.address = textBoxAddress.Text;
+                formMain.serverInfo.dbName = textBoxDbName.Text;
+                formMain.serverInfo.userName = textBoxUsername.Text;
+                formMain.serverInfo.password = textBoxPassword.Text;
+
+                formMain.connMgr.saveSettings(formMain.serverInfo);
+                MessageBox.Show("Server settings saved.");
+            }            
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }

@@ -47,39 +47,41 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cert.cs" />
-    <Compile Include="CertManager.cs" />
-    <Compile Include="DriveDetector.cs">
+    <Compile Include="Objects\Cert.cs" />
+    <Compile Include="Managers\CertManager.cs" />
+    <Compile Include="Managers\ConnManager.cs" />
+    <Compile Include="Forms\DriveDetector.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form_main.cs">
+    <Compile Include="Forms\Form_main.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form_main.Designer.cs">
+    <Compile Include="Forms\Form_main.Designer.cs">
       <DependentUpon>Form_main.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form_certificates.cs">
+    <Compile Include="Forms\Form_certificates.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form_certificates.Designer.cs">
+    <Compile Include="Forms\Form_certificates.Designer.cs">
       <DependentUpon>Form_certificates.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form_setPassword.cs">
+    <Compile Include="Forms\Form_setPassword.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form_setPassword.Designer.cs">
+    <Compile Include="Forms\Form_setPassword.Designer.cs">
       <DependentUpon>Form_setPassword.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Objects\ServerInfo.cs" />
     <Compile Include="settingsHelper.cs" />
-    <EmbeddedResource Include="Form_certificates.resx">
+    <EmbeddedResource Include="Forms\Form_certificates.resx">
       <DependentUpon>Form_certificates.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form_main.resx">
+    <EmbeddedResource Include="Forms\Form_main.resx">
       <DependentUpon>Form_main.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form_setPassword.resx">
+    <EmbeddedResource Include="Forms\Form_setPassword.resx">
       <DependentUpon>Form_setPassword.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

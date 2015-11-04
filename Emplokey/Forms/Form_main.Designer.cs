@@ -29,18 +29,18 @@
         private void InitializeComponent()
         {
             this.btnInstallCert = new System.Windows.Forms.Button();
-            this.labelRegisteredUser = new System.Windows.Forms.Label();
-            this.labelRegisteredUserInfo = new System.Windows.Forms.Label();
+            this.labelServer = new System.Windows.Forms.Label();
+            this.labelServerInfo = new System.Windows.Forms.Label();
             this.labelUsbCertificateInfo = new System.Windows.Forms.Label();
             this.labelUsbCertificate = new System.Windows.Forms.Label();
             this.labelAuthorizationInfo = new System.Windows.Forms.Label();
             this.labelAuthorization = new System.Windows.Forms.Label();
             this.labelCounting = new System.Windows.Forms.Label();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
+            this.btnStatistics = new System.Windows.Forms.Button();
+            this.btnPortable = new System.Windows.Forms.Button();
             this.groupBoxStatus = new System.Windows.Forms.GroupBox();
             this.labelSuInfo = new System.Windows.Forms.Label();
-            this.btnPortable = new System.Windows.Forms.Button();
-            this.btnStatistics = new System.Windows.Forms.Button();
             this.groupBoxSettings.SuspendLayout();
             this.groupBoxStatus.SuspendLayout();
             this.SuspendLayout();
@@ -55,26 +55,26 @@
             this.btnInstallCert.UseVisualStyleBackColor = true;
             this.btnInstallCert.Click += new System.EventHandler(this.btnInstallCert_Click);
             // 
-            // labelRegisteredUser
+            // labelServer
             // 
-            this.labelRegisteredUser.AutoSize = true;
-            this.labelRegisteredUser.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelRegisteredUser.Location = new System.Drawing.Point(6, 33);
-            this.labelRegisteredUser.Name = "labelRegisteredUser";
-            this.labelRegisteredUser.Size = new System.Drawing.Size(123, 16);
-            this.labelRegisteredUser.TabIndex = 1;
-            this.labelRegisteredUser.Text = "Registered user:";
+            this.labelServer.AutoSize = true;
+            this.labelServer.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelServer.Location = new System.Drawing.Point(71, 33);
+            this.labelServer.Name = "labelServer";
+            this.labelServer.Size = new System.Drawing.Size(58, 16);
+            this.labelServer.TabIndex = 1;
+            this.labelServer.Text = "Server:";
             // 
-            // labelRegisteredUserInfo
+            // labelServerInfo
             // 
-            this.labelRegisteredUserInfo.AutoSize = true;
-            this.labelRegisteredUserInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelRegisteredUserInfo.ForeColor = System.Drawing.Color.Red;
-            this.labelRegisteredUserInfo.Location = new System.Drawing.Point(135, 33);
-            this.labelRegisteredUserInfo.Name = "labelRegisteredUserInfo";
-            this.labelRegisteredUserInfo.Size = new System.Drawing.Size(168, 16);
-            this.labelRegisteredUserInfo.TabIndex = 2;
-            this.labelRegisteredUserInfo.Text = "no certificate registered yet";
+            this.labelServerInfo.AutoSize = true;
+            this.labelServerInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelServerInfo.ForeColor = System.Drawing.Color.Red;
+            this.labelServerInfo.Location = new System.Drawing.Point(135, 33);
+            this.labelServerInfo.Name = "labelServerInfo";
+            this.labelServerInfo.Size = new System.Drawing.Size(89, 16);
+            this.labelServerInfo.TabIndex = 2;
+            this.labelServerInfo.Text = "disconnected";
             // 
             // labelUsbCertificateInfo
             // 
@@ -140,10 +140,30 @@
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
             // 
+            // btnStatistics
+            // 
+            this.btnStatistics.Enabled = false;
+            this.btnStatistics.Location = new System.Drawing.Point(214, 35);
+            this.btnStatistics.Name = "btnStatistics";
+            this.btnStatistics.Size = new System.Drawing.Size(99, 23);
+            this.btnStatistics.TabIndex = 2;
+            this.btnStatistics.Text = "Statistics";
+            this.btnStatistics.UseVisualStyleBackColor = true;
+            // 
+            // btnPortable
+            // 
+            this.btnPortable.Enabled = false;
+            this.btnPortable.Location = new System.Drawing.Point(109, 35);
+            this.btnPortable.Name = "btnPortable";
+            this.btnPortable.Size = new System.Drawing.Size(99, 23);
+            this.btnPortable.TabIndex = 1;
+            this.btnPortable.Text = "Portable data";
+            this.btnPortable.UseVisualStyleBackColor = true;
+            // 
             // groupBoxStatus
             // 
-            this.groupBoxStatus.Controls.Add(this.labelRegisteredUser);
-            this.groupBoxStatus.Controls.Add(this.labelRegisteredUserInfo);
+            this.groupBoxStatus.Controls.Add(this.labelServer);
+            this.groupBoxStatus.Controls.Add(this.labelServerInfo);
             this.groupBoxStatus.Controls.Add(this.labelCounting);
             this.groupBoxStatus.Controls.Add(this.labelUsbCertificate);
             this.groupBoxStatus.Controls.Add(this.labelAuthorizationInfo);
@@ -164,26 +184,6 @@
             this.labelSuInfo.Size = new System.Drawing.Size(62, 13);
             this.labelSuInfo.TabIndex = 10;
             this.labelSuInfo.Text = "(super-user)";
-            // 
-            // btnPortable
-            // 
-            this.btnPortable.Enabled = false;
-            this.btnPortable.Location = new System.Drawing.Point(109, 35);
-            this.btnPortable.Name = "btnPortable";
-            this.btnPortable.Size = new System.Drawing.Size(99, 23);
-            this.btnPortable.TabIndex = 1;
-            this.btnPortable.Text = "Portable data";
-            this.btnPortable.UseVisualStyleBackColor = true;
-            // 
-            // btnStatistics
-            // 
-            this.btnStatistics.Enabled = false;
-            this.btnStatistics.Location = new System.Drawing.Point(214, 35);
-            this.btnStatistics.Name = "btnStatistics";
-            this.btnStatistics.Size = new System.Drawing.Size(99, 23);
-            this.btnStatistics.TabIndex = 2;
-            this.btnStatistics.Text = "Statistics";
-            this.btnStatistics.UseVisualStyleBackColor = true;
             // 
             // Form_main
             // 
@@ -211,8 +211,8 @@
         #endregion
 
         private System.Windows.Forms.Button btnInstallCert;
-        private System.Windows.Forms.Label labelRegisteredUser;
-        private System.Windows.Forms.Label labelRegisteredUserInfo;
+        private System.Windows.Forms.Label labelServer;
+        private System.Windows.Forms.Label labelServerInfo;
         private System.Windows.Forms.Label labelUsbCertificateInfo;
         private System.Windows.Forms.Label labelUsbCertificate;
         private System.Windows.Forms.Label labelAuthorizationInfo;

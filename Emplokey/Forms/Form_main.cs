@@ -12,8 +12,10 @@ namespace Emplokey
         private DriveDetector driveDetector = null;
         public Cert certLocal = new Cert() { loaded = false };
         public Cert certUSB = new Cert() { loaded = false };
-        public CertManager certMgr = new CertManager();        
+        public CertManager certMgr = new CertManager();
+        public ConnManager connMgr = new ConnManager();       
         public bool authorized = false;
+        public ServerInfo serverInfo = new ServerInfo();
         
         public static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public static CancellationToken cancellationToken = cancellationTokenSource.Token;
@@ -26,6 +28,7 @@ namespace Emplokey
             driveDetector.DeviceArrived += new DriveDetectorEventHandler(OnDriveArrived);
             driveDetector.DeviceRemoved += new DriveDetectorEventHandler(OnDriveRemoved);
 
+            connMgr.getServerSettings(this);
             checkForAuthorization();        
         }
 
@@ -36,13 +39,13 @@ namespace Emplokey
 
             if (certLocal.loaded)
             {
-                labelRegisteredUserInfo.Text = "certificate registered";
-                labelRegisteredUserInfo.ForeColor = Color.Green;
+                labelServerInfo.Text = "certificate registered";
+                labelServerInfo.ForeColor = Color.Green;
             }
             else
             {
-                labelRegisteredUserInfo.Text = "no certificate registered yet";
-                labelRegisteredUserInfo.ForeColor = Color.Red;
+                labelServerInfo.Text = "no certificate registered yet";
+                labelServerInfo.ForeColor = Color.Red;
                 authorized = false;
             }
 

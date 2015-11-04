@@ -11,6 +11,7 @@ namespace Emplokey
     {
         // Certificate settings
         public static string defaultCertName = "emplokey_cert.xml";
+        public static string defaultSettingsFile = "emplokey_settings.xml";
         public static XNamespace xNameSpace = "urn:lst-emp:emp";
 
         // Cryptography settings
