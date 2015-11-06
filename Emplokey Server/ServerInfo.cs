@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Emplokey_Server
 {
-    public class Server
+    public class ServerInfo
     {
         public string address { get; set; }
         public string dbName { get; set; }

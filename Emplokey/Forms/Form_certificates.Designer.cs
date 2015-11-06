@@ -30,13 +30,15 @@
         {
             this.listBoxDrives = new System.Windows.Forms.ListBox();
             this.btnCreateCert = new System.Windows.Forms.Button();
-            this.btnRegister = new System.Windows.Forms.Button();
+            this.btnPcLock = new System.Windows.Forms.Button();
             this.groupBoxDrives = new System.Windows.Forms.GroupBox();
             this.groupBoxOptions = new System.Windows.Forms.GroupBox();
-            this.buttonDeregister = new System.Windows.Forms.Button();
-            this.btnRemove = new System.Windows.Forms.Button();
+            this.btnRemoveCert = new System.Windows.Forms.Button();
+            this.btnPcUnlock = new System.Windows.Forms.Button();
             this.groupBoxUsbCertificates = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBoxServer = new System.Windows.Forms.GroupBox();
+            this.buttonRevert = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
             this.labelDbName = new System.Windows.Forms.Label();
             this.textBoxDbName = new System.Windows.Forms.TextBox();
             this.labelAddress = new System.Windows.Forms.Label();
@@ -45,12 +47,14 @@
             this.textBoxAddress = new System.Windows.Forms.TextBox();
             this.textBoxUsername = new System.Windows.Forms.TextBox();
             this.textBoxPassword = new System.Windows.Forms.TextBox();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.buttonRevert = new System.Windows.Forms.Button();
+            this.groupBoxAdmin = new System.Windows.Forms.GroupBox();
+            this.groupBoxPcLock = new System.Windows.Forms.GroupBox();
             this.groupBoxDrives.SuspendLayout();
             this.groupBoxOptions.SuspendLayout();
             this.groupBoxUsbCertificates.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.groupBoxServer.SuspendLayout();
+            this.groupBoxAdmin.SuspendLayout();
+            this.groupBoxPcLock.SuspendLayout();
             this.SuspendLayout();
             // 
             // listBoxDrives
@@ -60,9 +64,11 @@
             this.listBoxDrives.Name = "listBoxDrives";
             this.listBoxDrives.Size = new System.Drawing.Size(85, 108);
             this.listBoxDrives.TabIndex = 0;
+            this.listBoxDrives.SelectedIndexChanged += new System.EventHandler(this.listBoxDrives_SelectedIndexChanged);
             // 
             // btnCreateCert
             // 
+            this.btnCreateCert.Enabled = false;
             this.btnCreateCert.Location = new System.Drawing.Point(6, 19);
             this.btnCreateCert.Name = "btnCreateCert";
             this.btnCreateCert.Size = new System.Drawing.Size(106, 23);
@@ -71,56 +77,57 @@
             this.btnCreateCert.UseVisualStyleBackColor = true;
             this.btnCreateCert.Click += new System.EventHandler(this.btnCreateCert_Click);
             // 
-            // btnRegister
+            // btnPcLock
             // 
-            this.btnRegister.Location = new System.Drawing.Point(603, 32);
-            this.btnRegister.Name = "btnRegister";
-            this.btnRegister.Size = new System.Drawing.Size(106, 23);
-            this.btnRegister.TabIndex = 2;
-            this.btnRegister.Text = "Register";
-            this.btnRegister.UseVisualStyleBackColor = true;
-            this.btnRegister.Click += new System.EventHandler(this.btnRegister_Click);
+            this.btnPcLock.Location = new System.Drawing.Point(6, 19);
+            this.btnPcLock.Name = "btnPcLock";
+            this.btnPcLock.Size = new System.Drawing.Size(106, 23);
+            this.btnPcLock.TabIndex = 2;
+            this.btnPcLock.Text = "Lock";
+            this.btnPcLock.UseVisualStyleBackColor = true;
+            this.btnPcLock.Click += new System.EventHandler(this.btnPcLock_Click);
             // 
             // groupBoxDrives
             // 
             this.groupBoxDrives.Controls.Add(this.listBoxDrives);
             this.groupBoxDrives.Location = new System.Drawing.Point(6, 20);
             this.groupBoxDrives.Name = "groupBoxDrives";
-            this.groupBoxDrives.Size = new System.Drawing.Size(138, 143);
+            this.groupBoxDrives.Size = new System.Drawing.Size(138, 190);
             this.groupBoxDrives.TabIndex = 3;
             this.groupBoxDrives.TabStop = false;
             this.groupBoxDrives.Text = "Available drives";
             // 
             // groupBoxOptions
             // 
-            this.groupBoxOptions.Controls.Add(this.btnRemove);
+            this.groupBoxOptions.Controls.Add(this.btnRemoveCert);
             this.groupBoxOptions.Controls.Add(this.btnCreateCert);
             this.groupBoxOptions.Location = new System.Drawing.Point(150, 20);
             this.groupBoxOptions.Name = "groupBoxOptions";
-            this.groupBoxOptions.Size = new System.Drawing.Size(122, 143);
+            this.groupBoxOptions.Size = new System.Drawing.Size(122, 190);
             this.groupBoxOptions.TabIndex = 4;
             this.groupBoxOptions.TabStop = false;
             this.groupBoxOptions.Text = "Certificate options";
             // 
-            // buttonDeregister
+            // btnRemoveCert
             // 
-            this.buttonDeregister.Enabled = false;
-            this.buttonDeregister.Location = new System.Drawing.Point(603, 61);
-            this.buttonDeregister.Name = "buttonDeregister";
-            this.buttonDeregister.Size = new System.Drawing.Size(106, 23);
-            this.buttonDeregister.TabIndex = 4;
-            this.buttonDeregister.Text = "Deregister";
-            this.buttonDeregister.UseVisualStyleBackColor = true;
+            this.btnRemoveCert.Enabled = false;
+            this.btnRemoveCert.Location = new System.Drawing.Point(6, 48);
+            this.btnRemoveCert.Name = "btnRemoveCert";
+            this.btnRemoveCert.Size = new System.Drawing.Size(106, 23);
+            this.btnRemoveCert.TabIndex = 3;
+            this.btnRemoveCert.Text = "Remove";
+            this.btnRemoveCert.UseVisualStyleBackColor = true;
+            this.btnRemoveCert.Click += new System.EventHandler(this.btnRemoveCert_Click);
             // 
-            // btnRemove
+            // btnPcUnlock
             // 
-            this.btnRemove.Enabled = false;
-            this.btnRemove.Location = new System.Drawing.Point(6, 48);
-            this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(106, 23);
-            this.btnRemove.TabIndex = 3;
-            this.btnRemove.Text = "Remove";
-            this.btnRemove.UseVisualStyleBackColor = true;
+            this.btnPcUnlock.Location = new System.Drawing.Point(6, 48);
+            this.btnPcUnlock.Name = "btnPcUnlock";
+            this.btnPcUnlock.Size = new System.Drawing.Size(106, 23);
+            this.btnPcUnlock.TabIndex = 4;
+            this.btnPcUnlock.Text = "Unlock";
+            this.btnPcUnlock.UseVisualStyleBackColor = true;
+            this.btnPcUnlock.Click += new System.EventHandler(this.btnPcUnlock_Click);
             // 
             // groupBoxUsbCertificates
             // 
@@ -128,29 +135,49 @@
             this.groupBoxUsbCertificates.Controls.Add(this.groupBoxOptions);
             this.groupBoxUsbCertificates.Location = new System.Drawing.Point(12, 12);
             this.groupBoxUsbCertificates.Name = "groupBoxUsbCertificates";
-            this.groupBoxUsbCertificates.Size = new System.Drawing.Size(283, 190);
+            this.groupBoxUsbCertificates.Size = new System.Drawing.Size(283, 221);
             this.groupBoxUsbCertificates.TabIndex = 5;
             this.groupBoxUsbCertificates.TabStop = false;
             this.groupBoxUsbCertificates.Text = "USB certificates";
             // 
-            // groupBox1
+            // groupBoxServer
             // 
-            this.groupBox1.Controls.Add(this.buttonRevert);
-            this.groupBox1.Controls.Add(this.btnSave);
-            this.groupBox1.Controls.Add(this.labelDbName);
-            this.groupBox1.Controls.Add(this.textBoxDbName);
-            this.groupBox1.Controls.Add(this.labelAddress);
-            this.groupBox1.Controls.Add(this.labelPassword);
-            this.groupBox1.Controls.Add(this.labelUsername);
-            this.groupBox1.Controls.Add(this.textBoxAddress);
-            this.groupBox1.Controls.Add(this.textBoxUsername);
-            this.groupBox1.Controls.Add(this.textBoxPassword);
-            this.groupBox1.Location = new System.Drawing.Point(301, 12);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(283, 190);
-            this.groupBox1.TabIndex = 6;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Server";
+            this.groupBoxServer.Controls.Add(this.buttonRevert);
+            this.groupBoxServer.Controls.Add(this.btnSave);
+            this.groupBoxServer.Controls.Add(this.labelDbName);
+            this.groupBoxServer.Controls.Add(this.textBoxDbName);
+            this.groupBoxServer.Controls.Add(this.labelAddress);
+            this.groupBoxServer.Controls.Add(this.labelPassword);
+            this.groupBoxServer.Controls.Add(this.labelUsername);
+            this.groupBoxServer.Controls.Add(this.textBoxAddress);
+            this.groupBoxServer.Controls.Add(this.textBoxUsername);
+            this.groupBoxServer.Controls.Add(this.textBoxPassword);
+            this.groupBoxServer.Location = new System.Drawing.Point(6, 20);
+            this.groupBoxServer.Name = "groupBoxServer";
+            this.groupBoxServer.Size = new System.Drawing.Size(283, 190);
+            this.groupBoxServer.TabIndex = 6;
+            this.groupBoxServer.TabStop = false;
+            this.groupBoxServer.Text = "Server";
+            // 
+            // buttonRevert
+            // 
+            this.buttonRevert.Location = new System.Drawing.Point(170, 145);
+            this.buttonRevert.Name = "buttonRevert";
+            this.buttonRevert.Size = new System.Drawing.Size(92, 23);
+            this.buttonRevert.TabIndex = 28;
+            this.buttonRevert.Text = "Revert changes";
+            this.buttonRevert.UseVisualStyleBackColor = true;
+            this.buttonRevert.Click += new System.EventHandler(this.buttonRevert_Click);
+            // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(67, 145);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(92, 23);
+            this.btnSave.TabIndex = 27;
+            this.btnSave.Text = "Save";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // labelDbName
             // 
@@ -217,34 +244,36 @@
             this.textBoxPassword.TabIndex = 22;
             this.textBoxPassword.UseSystemPasswordChar = true;
             // 
-            // btnSave
+            // groupBoxAdmin
             // 
-            this.btnSave.Location = new System.Drawing.Point(67, 145);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(91, 23);
-            this.btnSave.TabIndex = 27;
-            this.btnSave.Text = "Save";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            this.groupBoxAdmin.Controls.Add(this.groupBoxPcLock);
+            this.groupBoxAdmin.Controls.Add(this.groupBoxServer);
+            this.groupBoxAdmin.Enabled = false;
+            this.groupBoxAdmin.Location = new System.Drawing.Point(301, 12);
+            this.groupBoxAdmin.Name = "groupBoxAdmin";
+            this.groupBoxAdmin.Size = new System.Drawing.Size(424, 221);
+            this.groupBoxAdmin.TabIndex = 7;
+            this.groupBoxAdmin.TabStop = false;
+            this.groupBoxAdmin.Text = "Administrative";
             // 
-            // buttonRevert
+            // groupBoxPcLock
             // 
-            this.buttonRevert.Location = new System.Drawing.Point(171, 145);
-            this.buttonRevert.Name = "buttonRevert";
-            this.buttonRevert.Size = new System.Drawing.Size(91, 23);
-            this.buttonRevert.TabIndex = 28;
-            this.buttonRevert.Text = "Revert changes";
-            this.buttonRevert.UseVisualStyleBackColor = true;
+            this.groupBoxPcLock.Controls.Add(this.btnPcLock);
+            this.groupBoxPcLock.Controls.Add(this.btnPcUnlock);
+            this.groupBoxPcLock.Location = new System.Drawing.Point(295, 20);
+            this.groupBoxPcLock.Name = "groupBoxPcLock";
+            this.groupBoxPcLock.Size = new System.Drawing.Size(119, 190);
+            this.groupBoxPcLock.TabIndex = 7;
+            this.groupBoxPcLock.TabStop = false;
+            this.groupBoxPcLock.Text = "PC Lock";
             // 
             // Form_certificates
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(721, 281);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.buttonDeregister);
+            this.ClientSize = new System.Drawing.Size(743, 250);
+            this.Controls.Add(this.groupBoxAdmin);
             this.Controls.Add(this.groupBoxUsbCertificates);
-            this.Controls.Add(this.btnRegister);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form_certificates";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
@@ -252,8 +281,10 @@
             this.groupBoxDrives.ResumeLayout(false);
             this.groupBoxOptions.ResumeLayout(false);
             this.groupBoxUsbCertificates.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.groupBoxServer.ResumeLayout(false);
+            this.groupBoxServer.PerformLayout();
+            this.groupBoxAdmin.ResumeLayout(false);
+            this.groupBoxPcLock.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -262,13 +293,13 @@
 
         private System.Windows.Forms.ListBox listBoxDrives;
         private System.Windows.Forms.Button btnCreateCert;
-        private System.Windows.Forms.Button btnRegister;
+        private System.Windows.Forms.Button btnPcLock;
         private System.Windows.Forms.GroupBox groupBoxDrives;
         private System.Windows.Forms.GroupBox groupBoxOptions;
-        private System.Windows.Forms.Button buttonDeregister;
-        private System.Windows.Forms.Button btnRemove;
+        private System.Windows.Forms.Button btnPcUnlock;
+        private System.Windows.Forms.Button btnRemoveCert;
         private System.Windows.Forms.GroupBox groupBoxUsbCertificates;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBoxServer;
         private System.Windows.Forms.Button buttonRevert;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Label labelDbName;
@@ -279,5 +310,7 @@
         private System.Windows.Forms.TextBox textBoxAddress;
         private System.Windows.Forms.TextBox textBoxUsername;
         private System.Windows.Forms.TextBox textBoxPassword;
+        private System.Windows.Forms.GroupBox groupBoxAdmin;
+        private System.Windows.Forms.GroupBox groupBoxPcLock;
     }
 }

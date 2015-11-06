@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 using System.Xml.Linq;
 
 namespace Emplokey
@@ -48,10 +51,29 @@ namespace Emplokey
                                    select q).First();
 
                 formMain.serverInfo.address = queryServer.Element("Address").Value;
-                formMain.serverInfo.address = queryServer.Element("DbName").Value;
+                formMain.serverInfo.dbName = queryServer.Element("DbName").Value;
                 formMain.serverInfo.userName = queryServer.Element("Username").Value;
                 formMain.serverInfo.password = queryServer.Element("Password").Value;
             }
-        }        
+        }      
+        
+        public bool tryToConnect(ServerInfo serverInfo)
+        {
+            string connString = String.Format("Server = {0}; database=master; User Id={1}; Password={2}", serverInfo.address, serverInfo.userName, serverInfo.password);            
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connString))
+                {
+                    connection.Open();
+                }
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
+            }
+        }  
     }
 }

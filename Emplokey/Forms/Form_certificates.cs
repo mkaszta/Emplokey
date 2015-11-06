@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Dolinay;
 using System.IO;
@@ -15,25 +8,34 @@ namespace Emplokey
     public partial class Form_certificates : Form
     {
         private DriveDetector driveDetector = null;
-        Form_main formMain = new Form_main();        
-
-        public string certPassword = "";
-        public bool cancelPassword = false;
+        Form_main formMain = new Form_main();                
 
         public Form_certificates(Form_main _formMain)
         {
             InitializeComponent();
+            formMain = _formMain;
 
             driveDetector = new DriveDetector(this);
             driveDetector.DeviceArrived += new DriveDetectorEventHandler(OnDriveArrived);
             driveDetector.DeviceRemoved += new DriveDetectorEventHandler(OnDriveRemoved);
-
-            formMain = _formMain;
             
-            getDrivesList();            
+            getDrivesList();
+            fillServerSettingsBoxes();
+
+            if (formMain.superUser)
+                groupBoxAdmin.Enabled = true;
+            else groupBoxAdmin.Enabled = false;      
         }
 
-        public void getDrivesList()
+        private void fillServerSettingsBoxes()
+        {
+            textBoxAddress.Text = formMain.serverInfo.address;
+            textBoxDbName.Text = formMain.serverInfo.dbName;
+            textBoxUsername.Text = formMain.serverInfo.userName;
+            textBoxPassword.Text = "";
+        }
+
+        private void getDrivesList()
         {
             listBoxDrives.Items.Clear();
             var drivesList = DriveInfo.GetDrives();
@@ -90,26 +92,21 @@ namespace Emplokey
             {
                 if (listBoxDrives.SelectedIndex != -1)
                 {
-                    Form_setPassword form_setPassword = new Form_setPassword(this);
-                    form_setPassword.ShowDialog(this);
-
-                    if (!cancelPassword)
+                    
+                    if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
                     {
-                        if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
+                        DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.Yes)
                         {
-                            DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
-                            if (dialogResult == DialogResult.Yes)
-                            {
-                                formMain.certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString(), certPassword);
-                                MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
-                            }
-                        }
-                        else
-                        {
-                            formMain.certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString(), certPassword);
+                            formMain.certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString());
                             MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
                         }
-                    }                                            
+                    }
+                    else
+                    {
+                        formMain.certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString());
+                        MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
+                    }                                                              
                 }
                 else MessageBox.Show("Please select a flash drive to create a certificate.");
 
@@ -117,30 +114,49 @@ namespace Emplokey
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            }            
+            }
+
+            listBoxDrives_SelectedIndexChanged(this, null);
         }
 
-        private void btnRegister_Click(object sender, EventArgs e)
-        {
-            if (listBoxDrives.SelectedItem == null)
-                MessageBox.Show("Please select a certificate's path.");
-            else if (!File.Exists(listBoxDrives.SelectedItem.ToString() + settingsHelper.defaultCertName))
-                MessageBox.Show("There is no certificate installed on the selected drive!");
-            else
+        private void btnPcLock_Click(object sender, EventArgs e)
+        {            
+            try
             {
-                try
-                {
-                    formMain.certMgr.registerCert(listBoxDrives.SelectedItem.ToString());                    
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }            
+                formMain.certMgr.setPcLockStatus(formMain.serverInfo, formMain.certUSB, 1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }                    
+        }
+
+        private void btnPcUnlock_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                formMain.certMgr.setPcLockStatus(formMain.serverInfo, formMain.certUSB, 0);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
-        {
+        {            
+            foreach (var control in groupBoxServer.Controls)
+            {
+                if (control.GetType() == typeof(TextBox))
+                {
+                    if (((TextBox)control).Text == "")
+                    {
+                        MessageBox.Show("Please fill in all needed data.");
+                        return;
+                    }                        
+                }
+            }
+
             try
             {
                 formMain.serverInfo.address = textBoxAddress.Text;
@@ -156,5 +172,39 @@ namespace Emplokey
                 MessageBox.Show(ex.Message);
             }
         }
+
+        private void buttonRevert_Click(object sender, EventArgs e)
+        {
+            fillServerSettingsBoxes();
+        }
+
+        private void listBoxDrives_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
+            {
+                btnCreateCert.Enabled = false;
+                btnRemoveCert.Enabled = true;
+            }
+            else
+            {
+                btnCreateCert.Enabled = true;
+                btnRemoveCert.Enabled = false;
+            }
+        }
+
+        private void btnRemoveCert_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                File.Delete(listBoxDrives.SelectedItem + settingsHelper.defaultCertName);
+                MessageBox.Show("Certificate removed from the " + listBoxDrives.SelectedItem + " drive");
+                listBoxDrives_SelectedIndexChanged(this, null);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }        
     }
 }

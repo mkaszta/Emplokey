@@ -7,20 +7,34 @@ namespace Emplokey
     {
         public string path { get; set; }
         public string user { get; set; }
-        public string password { get; set; }
+        public string userType { get; set; }
+        public string pcName { get; set; }        
         public bool loaded { get; set; }
 
-        private string _hashedPassword;
-        public string hashedPassword
+        public string HashedAuthKey
         {
-            set { }
-            get { return _hashedPassword = getHashedPassword(password); }
+            get
+            {
+                return hashedAuthKey;
+            }
+
+            set
+            {
+                hashedAuthKey = value;
+            }
         }
 
-        public static string getHashedPassword(string rawPassword)
+        private string _hashedAuthKey;
+        private string hashedAuthKey
+        {
+            set { }
+            get { return _hashedAuthKey = getHashedAuthKey(user, pcName); }
+        }
+
+        public static string getHashedAuthKey(string user, string pcName)
         {
             SHA1 sha1 = SHA1.Create();
-            byte[] hashData = sha1.ComputeHash(Encoding.Default.GetBytes(settingsHelper.sha1Salt + rawPassword));
+            byte[] hashData = sha1.ComputeHash(Encoding.Default.GetBytes(settingsHelper.sha1Salt + user + pcName + settingsHelper.sha1Salt));
 
             var hashedPassword = new StringBuilder();
 

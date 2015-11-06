@@ -129,7 +129,7 @@ namespace Emplokey_Server
                 foreach (var item in queryAll)
                 {
                     formMain.serverList.Add(
-                        new Server
+                        new ServerInfo
                         {
                             address = item.Element("Server").Value,
                             dbName = item.Element("DbName").Value,
@@ -140,7 +140,7 @@ namespace Emplokey_Server
             }            
         }
 
-        public void connect(Server server)
+        public void connect(ServerInfo server)
         {
 
         }

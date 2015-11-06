@@ -14,7 +14,7 @@ namespace Emplokey_Server
     public partial class Form_main : Form
     {
         DbManager dbMgr = new DbManager();
-        public List<Server> serverList = new List<Server>();
+        public List<ServerInfo> serverList = new List<ServerInfo>();
 
         public Form_main()
         {
