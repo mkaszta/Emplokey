@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using System.Text;
 using System.Security.Cryptography;
 
 namespace Emplokey
 {
-    public class Cert
+    public class ServerInfo
     {
-        public string path { get; set; }
-        public string user { get; set; }
+        public string address { get; set; }
+        public string dbName { get; set; }
+        public string userName { get; set; }
         public string password { get; set; }
-        public bool loaded { get; set; }
 
         private string _hashedPassword;
+
         public string hashedPassword
         {
             set { }
@@ -36,5 +32,5 @@ namespace Emplokey
 
             return hashedPassword.ToString();
         }
-    }    
+    }
 }

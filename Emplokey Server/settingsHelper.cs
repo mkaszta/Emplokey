@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.SqlClient;
+using System.Xml.Linq;
 
 namespace Emplokey_Server
 {
     class settingsHelper
     {
-        // DB settings
-        public static string DB_NAME = "Emplokey";
-        public static string DB_PATH = "C:\\Emplokey_db\\";
-        public static SqlConnection dbConnection = new SqlConnection("Server = localhost\\SQLEXPRESS; Integrated security = SSPI; database=master;");
+        public static XNamespace xNameSpace = "urn:lst-emp:emp";
+
+        public static string userPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Local\\EmploKey\\";
+        public static string settingsFilename = "EmplokeyServer_settings.xml";
     }
 }
