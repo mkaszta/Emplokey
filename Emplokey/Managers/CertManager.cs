@@ -30,7 +30,7 @@ namespace Emplokey
 
         public void setPcLockStatus(ServerInfo serverInfo, Cert certificate, int lockPc)
         {
-            string connString = String.Format("Server = {0}; database=master; User Id={1}; Password={2}", serverInfo.address, serverInfo.userName, serverInfo.password);
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
             connection.Open();
             DataClassesDataContext database = new DataClassesDataContext();
@@ -73,26 +73,30 @@ namespace Emplokey
                     if (lockPc == 1)
                         MessageBox.Show("This PC is now LOCKED.");
                     else MessageBox.Show("This PC is now UNLOCKED.");
-                }
-
-                database.SubmitChanges();
+                }                
 
                 var queryAuth = from u in database.Auths
                                 where u.ID_pc == queryPC.First().ID && u.ID_user == queryUser.First().ID
                                 select u;
 
                 if (queryAuth.Count() == 0)
-                {                    
+                {
                     Auth newAuth = new Auth
                     {
                         ID_pc = queryPC.First().ID,
                         ID_user = queryUser.First().ID,
-                        Auth_key = certificate.HashedAuthKey
+                        Auth_key = certificate.HashedAuthKey,
+                        Device = certificate.deviceId                        
                     };
 
-                    database.Auths.InsertOnSubmit(newAuth);
-                    database.SubmitChanges();                                                         
+                    database.Auths.InsertOnSubmit(newAuth);                                                                            
                 }
+                else if (lockPc == 0)
+                {
+                    database.Auths.DeleteOnSubmit(queryAuth.First());
+                }
+
+                database.SubmitChanges();
             }
             catch (Exception ex)
             {
@@ -100,9 +104,9 @@ namespace Emplokey
             }            
         }
 
-        public void getUserType(Form_main formMain)
+        public void getUserType(Form_main formMain, ServerInfo serverInfo)
         {
-            string connString = String.Format("Server = {0}; database=master; User Id={1}; Password={2}", formMain.serverInfo.address, formMain.serverInfo.userName, formMain.serverInfo.password);
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
             DataClassesDataContext database = new DataClassesDataContext();
 
@@ -132,9 +136,9 @@ namespace Emplokey
             }
         }
 
-        public bool getPcLockStatus(Form_main formMain)
+        public bool getPcLockStatus(Form_main formMain, ServerInfo serverInfo)
         {
-            string connString = String.Format("Server = {0}; database=master; User Id={1}; Password={2}", formMain.serverInfo.address, formMain.serverInfo.userName, formMain.serverInfo.password);
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
             DataClassesDataContext database = new DataClassesDataContext();
 
@@ -164,9 +168,9 @@ namespace Emplokey
             }
         }
 
-        public bool tryToAuthorize(Form_main formMain)
+        public bool tryToAuthorize(Form_main formMain, ServerInfo serverInfo)
         {
-            string connString = String.Format("Server = {0}; database=master; User Id={1}; Password={2}", formMain.serverInfo.address, formMain.serverInfo.userName, formMain.serverInfo.password);
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
             DataClassesDataContext database = new DataClassesDataContext();
 
@@ -180,7 +184,7 @@ namespace Emplokey
                     var queryAuth = from a in database.Auths
                                 join u in database.Users on a.ID_user equals u.ID
                                 join c in database.Computers on a.ID_pc equals c.ID
-                                where u.Username == formMain.certUSB.user
+                                where u.Username == formMain.certUSB.user && a.Device == formMain.certUSB.deviceId
                                 select new
                                 {
                                     u.Type,
@@ -243,6 +247,7 @@ namespace Emplokey
                 if (newCert.userType == "admin")
                     break;
             }
+                        
             return newCert;
         }
 

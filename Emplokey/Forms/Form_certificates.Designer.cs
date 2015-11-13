@@ -42,11 +42,7 @@
             this.labelDbName = new System.Windows.Forms.Label();
             this.textBoxDbName = new System.Windows.Forms.TextBox();
             this.labelAddress = new System.Windows.Forms.Label();
-            this.labelPassword = new System.Windows.Forms.Label();
-            this.labelUsername = new System.Windows.Forms.Label();
             this.textBoxAddress = new System.Windows.Forms.TextBox();
-            this.textBoxUsername = new System.Windows.Forms.TextBox();
-            this.textBoxPassword = new System.Windows.Forms.TextBox();
             this.groupBoxAdmin = new System.Windows.Forms.GroupBox();
             this.groupBoxPcLock = new System.Windows.Forms.GroupBox();
             this.groupBoxDrives.SuspendLayout();
@@ -92,7 +88,7 @@
             this.groupBoxDrives.Controls.Add(this.listBoxDrives);
             this.groupBoxDrives.Location = new System.Drawing.Point(6, 20);
             this.groupBoxDrives.Name = "groupBoxDrives";
-            this.groupBoxDrives.Size = new System.Drawing.Size(138, 190);
+            this.groupBoxDrives.Size = new System.Drawing.Size(138, 156);
             this.groupBoxDrives.TabIndex = 3;
             this.groupBoxDrives.TabStop = false;
             this.groupBoxDrives.Text = "Available drives";
@@ -103,7 +99,7 @@
             this.groupBoxOptions.Controls.Add(this.btnCreateCert);
             this.groupBoxOptions.Location = new System.Drawing.Point(150, 20);
             this.groupBoxOptions.Name = "groupBoxOptions";
-            this.groupBoxOptions.Size = new System.Drawing.Size(122, 190);
+            this.groupBoxOptions.Size = new System.Drawing.Size(122, 156);
             this.groupBoxOptions.TabIndex = 4;
             this.groupBoxOptions.TabStop = false;
             this.groupBoxOptions.Text = "Certificate options";
@@ -135,7 +131,7 @@
             this.groupBoxUsbCertificates.Controls.Add(this.groupBoxOptions);
             this.groupBoxUsbCertificates.Location = new System.Drawing.Point(12, 12);
             this.groupBoxUsbCertificates.Name = "groupBoxUsbCertificates";
-            this.groupBoxUsbCertificates.Size = new System.Drawing.Size(283, 221);
+            this.groupBoxUsbCertificates.Size = new System.Drawing.Size(283, 187);
             this.groupBoxUsbCertificates.TabIndex = 5;
             this.groupBoxUsbCertificates.TabStop = false;
             this.groupBoxUsbCertificates.Text = "USB certificates";
@@ -147,21 +143,17 @@
             this.groupBoxServer.Controls.Add(this.labelDbName);
             this.groupBoxServer.Controls.Add(this.textBoxDbName);
             this.groupBoxServer.Controls.Add(this.labelAddress);
-            this.groupBoxServer.Controls.Add(this.labelPassword);
-            this.groupBoxServer.Controls.Add(this.labelUsername);
             this.groupBoxServer.Controls.Add(this.textBoxAddress);
-            this.groupBoxServer.Controls.Add(this.textBoxUsername);
-            this.groupBoxServer.Controls.Add(this.textBoxPassword);
             this.groupBoxServer.Location = new System.Drawing.Point(6, 20);
             this.groupBoxServer.Name = "groupBoxServer";
-            this.groupBoxServer.Size = new System.Drawing.Size(283, 190);
+            this.groupBoxServer.Size = new System.Drawing.Size(283, 156);
             this.groupBoxServer.TabIndex = 6;
             this.groupBoxServer.TabStop = false;
             this.groupBoxServer.Text = "Server";
             // 
             // buttonRevert
             // 
-            this.buttonRevert.Location = new System.Drawing.Point(170, 145);
+            this.buttonRevert.Location = new System.Drawing.Point(170, 104);
             this.buttonRevert.Name = "buttonRevert";
             this.buttonRevert.Size = new System.Drawing.Size(92, 23);
             this.buttonRevert.TabIndex = 28;
@@ -171,7 +163,7 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(67, 145);
+            this.btnSave.Location = new System.Drawing.Point(67, 104);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(92, 23);
             this.btnSave.TabIndex = 27;
@@ -204,45 +196,12 @@
             this.labelAddress.TabIndex = 25;
             this.labelAddress.Text = "Address:";
             // 
-            // labelPassword
-            // 
-            this.labelPassword.AutoSize = true;
-            this.labelPassword.Location = new System.Drawing.Point(5, 113);
-            this.labelPassword.Name = "labelPassword";
-            this.labelPassword.Size = new System.Drawing.Size(56, 13);
-            this.labelPassword.TabIndex = 24;
-            this.labelPassword.Text = "Password:";
-            // 
-            // labelUsername
-            // 
-            this.labelUsername.AutoSize = true;
-            this.labelUsername.Location = new System.Drawing.Point(3, 87);
-            this.labelUsername.Name = "labelUsername";
-            this.labelUsername.Size = new System.Drawing.Size(58, 13);
-            this.labelUsername.TabIndex = 23;
-            this.labelUsername.Text = "Username:";
-            // 
             // textBoxAddress
             // 
             this.textBoxAddress.Location = new System.Drawing.Point(67, 32);
             this.textBoxAddress.Name = "textBoxAddress";
             this.textBoxAddress.Size = new System.Drawing.Size(195, 20);
             this.textBoxAddress.TabIndex = 19;
-            // 
-            // textBoxUsername
-            // 
-            this.textBoxUsername.Location = new System.Drawing.Point(67, 84);
-            this.textBoxUsername.Name = "textBoxUsername";
-            this.textBoxUsername.Size = new System.Drawing.Size(195, 20);
-            this.textBoxUsername.TabIndex = 21;
-            // 
-            // textBoxPassword
-            // 
-            this.textBoxPassword.Location = new System.Drawing.Point(67, 110);
-            this.textBoxPassword.Name = "textBoxPassword";
-            this.textBoxPassword.Size = new System.Drawing.Size(195, 20);
-            this.textBoxPassword.TabIndex = 22;
-            this.textBoxPassword.UseSystemPasswordChar = true;
             // 
             // groupBoxAdmin
             // 
@@ -251,7 +210,7 @@
             this.groupBoxAdmin.Enabled = false;
             this.groupBoxAdmin.Location = new System.Drawing.Point(301, 12);
             this.groupBoxAdmin.Name = "groupBoxAdmin";
-            this.groupBoxAdmin.Size = new System.Drawing.Size(424, 221);
+            this.groupBoxAdmin.Size = new System.Drawing.Size(424, 187);
             this.groupBoxAdmin.TabIndex = 7;
             this.groupBoxAdmin.TabStop = false;
             this.groupBoxAdmin.Text = "Administrative";
@@ -262,7 +221,7 @@
             this.groupBoxPcLock.Controls.Add(this.btnPcUnlock);
             this.groupBoxPcLock.Location = new System.Drawing.Point(295, 20);
             this.groupBoxPcLock.Name = "groupBoxPcLock";
-            this.groupBoxPcLock.Size = new System.Drawing.Size(119, 190);
+            this.groupBoxPcLock.Size = new System.Drawing.Size(119, 156);
             this.groupBoxPcLock.TabIndex = 7;
             this.groupBoxPcLock.TabStop = false;
             this.groupBoxPcLock.Text = "PC Lock";
@@ -271,7 +230,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(743, 250);
+            this.ClientSize = new System.Drawing.Size(743, 213);
             this.Controls.Add(this.groupBoxAdmin);
             this.Controls.Add(this.groupBoxUsbCertificates);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -305,11 +264,7 @@
         private System.Windows.Forms.Label labelDbName;
         private System.Windows.Forms.TextBox textBoxDbName;
         private System.Windows.Forms.Label labelAddress;
-        private System.Windows.Forms.Label labelPassword;
-        private System.Windows.Forms.Label labelUsername;
         private System.Windows.Forms.TextBox textBoxAddress;
-        private System.Windows.Forms.TextBox textBoxUsername;
-        private System.Windows.Forms.TextBox textBoxPassword;
         private System.Windows.Forms.GroupBox groupBoxAdmin;
         private System.Windows.Forms.GroupBox groupBoxPcLock;
     }

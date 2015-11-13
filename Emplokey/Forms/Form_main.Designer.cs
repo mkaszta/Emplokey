@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_main));
             this.btnCertMgr = new System.Windows.Forms.Button();
             this.labelServer = new System.Windows.Forms.Label();
             this.labelServerInfo = new System.Windows.Forms.Label();
@@ -43,6 +45,7 @@
             this.labelSuInfo = new System.Windows.Forms.Label();
             this.labelLock = new System.Windows.Forms.Label();
             this.labelLockInfo = new System.Windows.Forms.Label();
+            this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.groupBoxSettings.SuspendLayout();
             this.groupBoxStatus.SuspendLayout();
             this.SuspendLayout();
@@ -212,12 +215,18 @@
             this.labelLockInfo.TabIndex = 9;
             this.labelLockInfo.Text = "-";
             // 
+            // notifyIcon
+            // 
+            this.notifyIcon.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
+            this.notifyIcon.Text = "Emplokey";
+            this.notifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseDoubleClick);
+            // 
             // Form_main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(343, 278);
-            this.ControlBox = false;
             this.Controls.Add(this.groupBoxStatus);
             this.Controls.Add(this.groupBoxSettings);
             this.DoubleBuffered = true;
@@ -227,6 +236,7 @@
             this.Text = "Emplokey";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_main_FormClosing);
             this.Load += new System.EventHandler(this.Form_main_Load);
+            this.Resize += new System.EventHandler(this.Form_main_Resize);
             this.groupBoxSettings.ResumeLayout(false);
             this.groupBoxStatus.ResumeLayout(false);
             this.groupBoxStatus.PerformLayout();
@@ -251,6 +261,7 @@
         private System.Windows.Forms.Label labelSuInfo;
         private System.Windows.Forms.Label labelLock;
         private System.Windows.Forms.Label labelLockInfo;
+        private System.Windows.Forms.NotifyIcon notifyIcon;
     }
 }
 

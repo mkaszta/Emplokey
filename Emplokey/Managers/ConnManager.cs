@@ -18,9 +18,7 @@ namespace Emplokey
                 new XElement(settingsHelper.xNameSpace + "Emplokey_settings",
                     new XElement("Server",
                         new XElement("Address", serverInfo.address),
-                        new XElement("DbName", serverInfo.dbName),
-                        new XElement("Username", serverInfo.userName),
-                        new XElement("Password", serverInfo.password)                    
+                        new XElement("DbName", serverInfo.dbName)                  
                     )));
 
                 xSettings.Save(settingsHelper.userPath + settingsHelper.defaultSettingsFile);
@@ -34,8 +32,6 @@ namespace Emplokey
 
                 queryServer.Element("Address").Value = serverInfo.address;
                 queryServer.Element("DbName").Value = serverInfo.dbName;
-                queryServer.Element("Username").Value = serverInfo.userName;
-                queryServer.Element("Password").Value = serverInfo.password;
 
                 xSettings.Save(settingsHelper.userPath + settingsHelper.defaultSettingsFile);
             }
@@ -52,14 +48,12 @@ namespace Emplokey
 
                 formMain.serverInfo.address = queryServer.Element("Address").Value;
                 formMain.serverInfo.dbName = queryServer.Element("DbName").Value;
-                formMain.serverInfo.userName = queryServer.Element("Username").Value;
-                formMain.serverInfo.password = queryServer.Element("Password").Value;
             }
         }      
         
         public bool tryToConnect(ServerInfo serverInfo)
         {
-            string connString = String.Format("Server = {0}; database=master; User Id={1}; Password={2}", serverInfo.address, serverInfo.userName, serverInfo.password);            
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
 
             try
             {

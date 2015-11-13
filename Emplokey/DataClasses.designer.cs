@@ -30,15 +30,15 @@ namespace Emplokey
 		
     #region Extensibility Method Definitions
     partial void OnCreated();
-    partial void InsertAuth(Auth instance);
-    partial void UpdateAuth(Auth instance);
-    partial void DeleteAuth(Auth instance);
     partial void InsertUser(User instance);
     partial void UpdateUser(User instance);
     partial void DeleteUser(User instance);
     partial void InsertComputer(Computer instance);
     partial void UpdateComputer(Computer instance);
     partial void DeleteComputer(Computer instance);
+    partial void InsertAuth(Auth instance);
+    partial void UpdateAuth(Auth instance);
+    partial void DeleteAuth(Auth instance);
     #endregion
 		
 		public DataClassesDataContext() : 
@@ -71,14 +71,6 @@ namespace Emplokey
 			OnCreated();
 		}
 		
-		public System.Data.Linq.Table<Auth> Auths
-		{
-			get
-			{
-				return this.GetTable<Auth>();
-			}
-		}
-		
 		public System.Data.Linq.Table<User> Users
 		{
 			get
@@ -94,138 +86,12 @@ namespace Emplokey
 				return this.GetTable<Computer>();
 			}
 		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Auths")]
-	public partial class Auth : INotifyPropertyChanging, INotifyPropertyChanged
-	{
 		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _ID;
-		
-		private int _ID_user;
-		
-		private int _ID_pc;
-		
-		private string _Auth_key;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnIDChanging(int value);
-    partial void OnIDChanged();
-    partial void OnID_userChanging(int value);
-    partial void OnID_userChanged();
-    partial void OnID_pcChanging(int value);
-    partial void OnID_pcChanged();
-    partial void OnAuth_keyChanging(string value);
-    partial void OnAuth_keyChanged();
-    #endregion
-		
-		public Auth()
-		{
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int ID
+		public System.Data.Linq.Table<Auth> Auths
 		{
 			get
 			{
-				return this._ID;
-			}
-			set
-			{
-				if ((this._ID != value))
-				{
-					this.OnIDChanging(value);
-					this.SendPropertyChanging();
-					this._ID = value;
-					this.SendPropertyChanged("ID");
-					this.OnIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID_user", DbType="Int NOT NULL")]
-		public int ID_user
-		{
-			get
-			{
-				return this._ID_user;
-			}
-			set
-			{
-				if ((this._ID_user != value))
-				{
-					this.OnID_userChanging(value);
-					this.SendPropertyChanging();
-					this._ID_user = value;
-					this.SendPropertyChanged("ID_user");
-					this.OnID_userChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID_pc", DbType="Int NOT NULL")]
-		public int ID_pc
-		{
-			get
-			{
-				return this._ID_pc;
-			}
-			set
-			{
-				if ((this._ID_pc != value))
-				{
-					this.OnID_pcChanging(value);
-					this.SendPropertyChanging();
-					this._ID_pc = value;
-					this.SendPropertyChanged("ID_pc");
-					this.OnID_pcChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Auth_key", DbType="VarChar(100) NOT NULL", CanBeNull=false)]
-		public string Auth_key
-		{
-			get
-			{
-				return this._Auth_key;
-			}
-			set
-			{
-				if ((this._Auth_key != value))
-				{
-					this.OnAuth_keyChanging(value);
-					this.SendPropertyChanging();
-					this._Auth_key = value;
-					this.SendPropertyChanged("Auth_key");
-					this.OnAuth_keyChanged();
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+				return this.GetTable<Auth>();
 			}
 		}
 	}
@@ -425,6 +291,164 @@ namespace Emplokey
 					this._Lock_status = value;
 					this.SendPropertyChanged("Lock_status");
 					this.OnLock_statusChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Auths")]
+	public partial class Auth : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _ID;
+		
+		private int _ID_user;
+		
+		private int _ID_pc;
+		
+		private string _Auth_key;
+		
+		private string _Device;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    partial void OnID_userChanging(int value);
+    partial void OnID_userChanged();
+    partial void OnID_pcChanging(int value);
+    partial void OnID_pcChanged();
+    partial void OnAuth_keyChanging(string value);
+    partial void OnAuth_keyChanged();
+    partial void OnDeviceChanging(string value);
+    partial void OnDeviceChanged();
+    #endregion
+		
+		public Auth()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID_user", DbType="Int NOT NULL")]
+		public int ID_user
+		{
+			get
+			{
+				return this._ID_user;
+			}
+			set
+			{
+				if ((this._ID_user != value))
+				{
+					this.OnID_userChanging(value);
+					this.SendPropertyChanging();
+					this._ID_user = value;
+					this.SendPropertyChanged("ID_user");
+					this.OnID_userChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID_pc", DbType="Int NOT NULL")]
+		public int ID_pc
+		{
+			get
+			{
+				return this._ID_pc;
+			}
+			set
+			{
+				if ((this._ID_pc != value))
+				{
+					this.OnID_pcChanging(value);
+					this.SendPropertyChanging();
+					this._ID_pc = value;
+					this.SendPropertyChanged("ID_pc");
+					this.OnID_pcChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Auth_key", DbType="VarChar(100) NOT NULL", CanBeNull=false)]
+		public string Auth_key
+		{
+			get
+			{
+				return this._Auth_key;
+			}
+			set
+			{
+				if ((this._Auth_key != value))
+				{
+					this.OnAuth_keyChanging(value);
+					this.SendPropertyChanging();
+					this._Auth_key = value;
+					this.SendPropertyChanged("Auth_key");
+					this.OnAuth_keyChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Device", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
+		public string Device
+		{
+			get
+			{
+				return this._Device;
+			}
+			set
+			{
+				if ((this._Device != value))
+				{
+					this.OnDeviceChanging(value);
+					this.SendPropertyChanging();
+					this._Device = value;
+					this.SendPropertyChanged("Device");
+					this.OnDeviceChanged();
 				}
 			}
 		}

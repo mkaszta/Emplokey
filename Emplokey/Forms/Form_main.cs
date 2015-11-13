@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace Emplokey
 {
@@ -26,10 +27,13 @@ namespace Emplokey
         public Form_main()
         {
             InitializeComponent();
+            RegisterAtStartup();
 
             driveDetector = new DriveDetector(this);
             driveDetector.DeviceArrived += new DriveDetectorEventHandler(OnDriveArrived);
-            driveDetector.DeviceRemoved += new DriveDetectorEventHandler(OnDriveRemoved);                                         
+            driveDetector.DeviceRemoved += new DriveDetectorEventHandler(OnDriveRemoved);
+
+            this.WindowState = FormWindowState.Minimized;                                      
         }        
 
         private void checkForAuthorization()
@@ -37,10 +41,10 @@ namespace Emplokey
             connected = connMgr.tryToConnect(serverInfo);
             if (connected)
             {
-                pcLock = certMgr.getPcLockStatus(this);
+                pcLock = certMgr.getPcLockStatus(this, serverInfo);
                 if (pcLock)
                 {
-                    authorized = certMgr.tryToAuthorize(this);
+                    authorized = certMgr.tryToAuthorize(this, serverInfo);
                     if (authorized)
                         cancellationTokenSource.Cancel();
                     else
@@ -57,7 +61,7 @@ namespace Emplokey
 
         private void updateStatuses()
         {
-            certMgr.getUserType(this);            
+            certMgr.getUserType(this, serverInfo);            
 
             if (connected)
             {
@@ -120,6 +124,17 @@ namespace Emplokey
                 labelUsbCertificateInfo.Text = "not found";
                 labelUsbCertificateInfo.ForeColor = Color.Red;
             }
+
+            // baloon notification
+            if (authorized)
+            {
+                if (superUser)
+                    notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is authorized\n(admin mode)", ToolTipIcon.Info);
+                else
+                    notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is authorized\n(user mode)", ToolTipIcon.Info);
+            }                
+            else
+                notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is NOT authorized!", ToolTipIcon.Error);
         }
 
         private void btnCertMgr_Click(object sender, EventArgs e)
@@ -140,6 +155,9 @@ namespace Emplokey
             if (!authorized)
             {
                 certUSB = certMgr.getUsbCert();
+                if (certUSB.userType == "admin")
+                    superUser = true;
+                else superUser = false;
 
                 if (serverInfo.address != null)
                 {
@@ -150,6 +168,10 @@ namespace Emplokey
             else
             {
                 var tempUsbCert = certMgr.getUsbCert(e.Drive);
+                if (tempUsbCert.userType == "admin")
+                    superUser = true;
+                else superUser = false;
+
                 if (tempUsbCert.userType == "admin" && certUSB.userType != "admin")
                 {
                     certUSB = tempUsbCert;
@@ -157,6 +179,10 @@ namespace Emplokey
                     if (!authorized)
                     {
                         certUSB = certMgr.getUsbCert();
+                        if (certUSB.userType == "admin")
+                            superUser = true;
+                        else superUser = false;
+
                         checkForAuthorization();
                     }                                  
                     updateStatuses();
@@ -166,10 +192,15 @@ namespace Emplokey
 
         private void OnDriveRemoved(object sender, DriveDetectorEventArgs e)
         {
-            certUSB = certMgr.getUsbCert();
+            if (connected && certUSB.path != null && certUSB.path.Contains(e.Drive))
+            {
+                certUSB = certMgr.getUsbCert();
+                if (certUSB.userType == "admin")
+                    superUser = true;
+                else superUser = false;
 
-            if (connected && certUSB.path != null && certUSB.path.Contains(e.Drive))            
-                checkForAuthorization();                            
+                checkForAuthorization();
+            }            
 
             updateStatuses();
         }        
@@ -226,6 +257,28 @@ namespace Emplokey
             }
 
             updateStatuses();
+        }
+
+        private void Form_main_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                Hide();
+                notifyIcon.Visible = true;
+            }
+        }
+
+        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Show();
+            this.WindowState = FormWindowState.Normal;
+            notifyIcon.Visible = false;
+        }
+
+        private void RegisterAtStartup()
+        {
+            RegistryKey regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\MICROSOFT\\Windows\\CurrentVersion\\Run", true);
+            regKey.SetValue("Emplokey", Application.ExecutablePath);
         }
     }
 }

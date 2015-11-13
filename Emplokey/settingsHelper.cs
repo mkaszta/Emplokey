@@ -9,6 +9,8 @@ namespace Emplokey
 {
     class settingsHelper
     {
+        public static string connectionString = "Server = {0}; database=master; Integrated Security = SSPI";
+
         // Certificate settings
         public static string defaultCertName = "emplokey_cert.xml";
         public static string defaultSettingsFile = "emplokey_settings.xml";

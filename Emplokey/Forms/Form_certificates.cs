@@ -30,9 +30,7 @@ namespace Emplokey
         private void fillServerSettingsBoxes()
         {
             textBoxAddress.Text = formMain.serverInfo.address;
-            textBoxDbName.Text = formMain.serverInfo.dbName;
-            textBoxUsername.Text = formMain.serverInfo.userName;
-            textBoxPassword.Text = "";
+            textBoxDbName.Text = formMain.serverInfo.dbName;                     
         }
 
         private void getDrivesList()
@@ -161,8 +159,6 @@ namespace Emplokey
             {
                 formMain.serverInfo.address = textBoxAddress.Text;
                 formMain.serverInfo.dbName = textBoxDbName.Text;
-                formMain.serverInfo.userName = textBoxUsername.Text;
-                formMain.serverInfo.password = textBoxPassword.Text;
 
                 formMain.connMgr.saveSettings(formMain.serverInfo);
                 MessageBox.Show("Server settings saved.");
