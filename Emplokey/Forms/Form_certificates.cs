@@ -10,10 +10,9 @@ namespace Emplokey
         private DriveDetector driveDetector = null;
         Form_main formMain = new Form_main();                
 
-        public Form_certificates(Form_main _formMain)
+        public Form_certificates(Form_main formMain)
         {
-            InitializeComponent();
-            formMain = _formMain;
+            InitializeComponent();            
 
             driveDetector = new DriveDetector(this);
             driveDetector.DeviceArrived += new DriveDetectorEventHandler(OnDriveArrived);
@@ -22,9 +21,14 @@ namespace Emplokey
             getDrivesList();
             fillServerSettingsBoxes();
 
-            if (formMain.superUser)
+            if (!formMain.connected)
+            {
                 groupBoxAdmin.Enabled = true;
-            else groupBoxAdmin.Enabled = false;      
+                groupBoxPcLock.Enabled = false;
+            }
+            else if (formMain.superUser)
+                groupBoxAdmin.Enabled = true;
+            else groupBoxAdmin.Enabled = false;
         }
 
         private void fillServerSettingsBoxes()

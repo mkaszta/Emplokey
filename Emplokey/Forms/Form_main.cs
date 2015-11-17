@@ -60,11 +60,9 @@ namespace Emplokey
         }
 
         private void updateStatuses()
-        {
-            certMgr.getUserType(this, serverInfo);            
-
+        {            
             if (connected)
-            {
+            {                
                 labelServerInfo.Text = "connected";
                 labelServerInfo.ForeColor = Color.Green;
 
@@ -75,6 +73,8 @@ namespace Emplokey
 
                     if (authorized)
                     {
+                        certMgr.getUserType(this, serverInfo);
+
                         labelAuthorizationInfo.Text = "AUTHORIZED";
                         labelAuthorizationInfo.ForeColor = Color.Green;
 
@@ -144,7 +144,8 @@ namespace Emplokey
 
             connMgr.getServerSettings(this);
             certUSB = certMgr.getUsbCert();
-            checkForAuthorization();
+            if (serverInfo.address != null)
+                checkForAuthorization();
             updateStatuses();
         }
 
