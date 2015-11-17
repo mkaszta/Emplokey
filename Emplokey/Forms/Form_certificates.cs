@@ -17,9 +17,9 @@ namespace Emplokey
             driveDetector = new DriveDetector(this);
             driveDetector.DeviceArrived += new DriveDetectorEventHandler(OnDriveArrived);
             driveDetector.DeviceRemoved += new DriveDetectorEventHandler(OnDriveRemoved);
-            
-            getDrivesList();
-            fillServerSettingsBoxes();
+
+            UpdateDriveList();
+            FillServerSettingsBoxes();
 
             if (!formMain.connected)
             {
@@ -31,13 +31,13 @@ namespace Emplokey
             else groupBoxAdmin.Enabled = false;
         }
 
-        private void fillServerSettingsBoxes()
+        private void FillServerSettingsBoxes()
         {
             textBoxAddress.Text = formMain.serverInfo.address;
             textBoxDbName.Text = formMain.serverInfo.dbName;                     
         }
 
-        private void getDrivesList()
+        private void UpdateDriveList()
         {
             listBoxDrives.Items.Clear();
             var drivesList = DriveInfo.GetDrives();
@@ -45,12 +45,12 @@ namespace Emplokey
             {
                 if (drive.DriveType == DriveType.Removable || drive.DriveType == DriveType.Fixed)
                 {
-                    updateDriveList(drive.Name, true);
+                    UpdateDriveList(drive.Name, true);
                 }
             }
         }
 
-        private void updateDriveList(string driveLetter, bool addDrive)
+        private void UpdateDriveList(string driveLetter, bool addDrive)
         {
             if (addDrive)
                 listBoxDrives.Items.Add(driveLetter);
@@ -65,119 +65,8 @@ namespace Emplokey
                     }
                 }
             }
-        }
-
-        protected override void WndProc(ref Message m)
-        {
-            base.WndProc(ref m);
-
-            if (driveDetector != null)
-            {
-                driveDetector.WndProc(ref m);
-            }
-        }
-
-        private void OnDriveArrived(object sender, DriveDetectorEventArgs e)
-        {
-            e.HookQueryRemove = false;
-            updateDriveList(e.Drive, true);
-        }
-
-        private void OnDriveRemoved(object sender, DriveDetectorEventArgs e)
-        {
-            updateDriveList(e.Drive, false);
-        }
-
-        private void btnCreateCert_Click(object sender, EventArgs e)
-        {                        
-            try
-            {
-                if (listBoxDrives.SelectedIndex != -1)
-                {
-                    
-                    if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
-                    {
-                        DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
-                        if (dialogResult == DialogResult.Yes)
-                        {
-                            formMain.certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString());
-                            MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
-                        }
-                    }
-                    else
-                    {
-                        formMain.certMgr.createCert(formMain, listBoxDrives.SelectedItem.ToString());
-                        MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
-                    }                                                              
-                }
-                else MessageBox.Show("Please select a flash drive to create a certificate.");
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-
-            listBoxDrives_SelectedIndexChanged(this, null);
-        }
-
-        private void btnPcLock_Click(object sender, EventArgs e)
-        {            
-            try
-            {
-                formMain.certMgr.setPcLockStatus(formMain.serverInfo, formMain.certUSB, 1);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }                    
-        }
-
-        private void btnPcUnlock_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                formMain.certMgr.setPcLockStatus(formMain.serverInfo, formMain.certUSB, 0);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void btnSave_Click(object sender, EventArgs e)
-        {            
-            foreach (var control in groupBoxServer.Controls)
-            {
-                if (control.GetType() == typeof(TextBox))
-                {
-                    if (((TextBox)control).Text == "")
-                    {
-                        MessageBox.Show("Please fill in all needed data.");
-                        return;
-                    }                        
-                }
-            }
-
-            try
-            {
-                formMain.serverInfo.address = textBoxAddress.Text;
-                formMain.serverInfo.dbName = textBoxDbName.Text;
-
-                formMain.connMgr.saveSettings(formMain.serverInfo);
-                MessageBox.Show("Server settings saved.");
-            }            
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void buttonRevert_Click(object sender, EventArgs e)
-        {
-            fillServerSettingsBoxes();
-        }
-
+        }        
+    
         private void listBoxDrives_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
@@ -205,6 +94,117 @@ namespace Emplokey
                 MessageBox.Show(ex.Message);
             }
 
-        }        
+        }
+
+        private void btnCreateCert_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (listBoxDrives.SelectedIndex != -1)
+                {
+
+                    if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
+                    {
+                        DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            formMain.certMgr.CreateCert(formMain.certUSB, listBoxDrives.SelectedItem.ToString());
+                            MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
+                        }
+                    }
+                    else
+                    {
+                        formMain.certMgr.CreateCert(formMain.certUSB, listBoxDrives.SelectedItem.ToString());
+                        MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
+                    }
+                }
+                else MessageBox.Show("Please select a flash drive to create a certificate.");
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            listBoxDrives_SelectedIndexChanged(this, null);
+        }
+
+        private void btnPcLock_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                formMain.certMgr.SetPcLockStatus(formMain.serverInfo, formMain.certUSB, 1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void btnPcUnlock_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                formMain.certMgr.SetPcLockStatus(formMain.serverInfo, formMain.certUSB, 0);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            foreach (var control in groupBoxServer.Controls)
+            {
+                if (control.GetType() == typeof(TextBox))
+                {
+                    if (((TextBox)control).Text == "")
+                    {
+                        MessageBox.Show("Please fill in all needed data.");
+                        return;
+                    }
+                }
+            }
+
+            try
+            {
+                formMain.serverInfo.address = textBoxAddress.Text;
+                formMain.serverInfo.dbName = textBoxDbName.Text;
+
+                formMain.connMgr.SaveServerInfo(formMain.serverInfo);
+                MessageBox.Show("Server settings saved.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void btnRevert_Click(object sender, EventArgs e)
+        {
+            FillServerSettingsBoxes();
+        }
+
+        private void OnDriveArrived(object sender, DriveDetectorEventArgs e)
+        {
+            e.HookQueryRemove = false;
+            UpdateDriveList(e.Drive, true);
+        }
+
+        private void OnDriveRemoved(object sender, DriveDetectorEventArgs e)
+        {
+            UpdateDriveList(e.Drive, false);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+
+            if (driveDetector != null)
+            {
+                driveDetector.WndProc(ref m);
+            }
+        }
     }
 }

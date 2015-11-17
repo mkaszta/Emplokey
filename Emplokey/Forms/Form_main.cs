@@ -34,24 +34,56 @@ namespace Emplokey
             driveDetector.DeviceRemoved += new DriveDetectorEventHandler(OnDriveRemoved);
 
             this.WindowState = FormWindowState.Minimized;                                      
+        }
+
+        private void Form_main_Load(object sender, EventArgs e)
+        {
+            serverInfo = connMgr.LoadServerInfo();
+            certUSB = certMgr.GetUsbCert();
+
+            if (serverInfo.address == null)
+            {
+                MessageBox.Show("Server settings are not ready yet!\nGo to Certificates manager and create new connection.");
+            }
+            else
+            {
+                CheckIfAuthorized();
+            }
+
+            UpdateStatuses();
+        }
+
+        private void Form_main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            MessageBox.Show("Can't close the application.");
+            e.Cancel = true;
         }        
 
-        private void checkForAuthorization()
+        private void Form_main_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                Hide();
+                notifyIcon.Visible = true;
+            }
+        }
+
+        private void CheckIfAuthorized()
         {                        
-            connected = connMgr.tryToConnect(serverInfo);
+            connected = connMgr.TryToConnect(serverInfo);
             if (connected)
             {
-                pcLock = certMgr.getPcLockStatus(this, serverInfo);
+                pcLock = certMgr.GetPcLockStatus(serverInfo);
                 if (pcLock)
                 {
-                    authorized = certMgr.tryToAuthorize(this, serverInfo);
+                    authorized = certMgr.TryToAuthorize(serverInfo, certUSB, superUser);
                     if (authorized)
                         cancellationTokenSource.Cancel();
                     else
                     {
                         cancellationTokenSource = new CancellationTokenSource();
                         cancellationToken = cancellationTokenSource.Token;
-                        Task.Factory.StartNew(() => lockingProcess(), cancellationToken);
+                        Task.Factory.StartNew(() => LockingProcess(), cancellationToken);
                     }
                 }
                 else cancellationTokenSource.Cancel();
@@ -59,7 +91,41 @@ namespace Emplokey
             else cancellationTokenSource.Cancel();                    
         }
 
-        private void updateStatuses()
+        private void LockingProcess()
+        {
+            try
+            {
+                for (int i = settingsHelper.counter; i >= 0; i--)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (labelCounting.InvokeRequired)
+                        labelCounting.Invoke(new Action(() => labelCounting.Text = i.ToString() + "s. to lock!"));
+
+                    Thread.Sleep(1000);
+                }
+                MessageBox.Show("LOCKED");
+            }
+            catch (OperationCanceledException)
+            {
+                labelCounting.Invoke(new Action(() => labelCounting.Text = ""));
+            }
+        }
+
+        private void RegisterAtStartup()
+        {
+            try
+            {
+                RegistryKey regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\MICROSOFT\\Windows\\CurrentVersion\\Run", true);
+                regKey.SetValue("Emplokey", Application.ExecutablePath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }            
+        }
+
+        private void UpdateStatuses()
         {            
             if (connected)
             {                
@@ -73,7 +139,7 @@ namespace Emplokey
 
                     if (authorized)
                     {
-                        certMgr.getUserType(this, serverInfo);
+                        superUser = certMgr.GetUserType(certUSB, serverInfo);
 
                         labelAuthorizationInfo.Text = "AUTHORIZED";
                         labelAuthorizationInfo.ForeColor = Color.Green;
@@ -135,40 +201,47 @@ namespace Emplokey
             }                
             else
                 notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is NOT authorized!", ToolTipIcon.Error);
-        }
+        }                        
 
         private void btnCertMgr_Click(object sender, EventArgs e)
         {
             var form_certManager = new Form_certificates(this);
             form_certManager.ShowDialog();
 
-            connMgr.getServerSettings(this);
-            certUSB = certMgr.getUsbCert();
+            serverInfo = connMgr.LoadServerInfo();
+            certUSB = certMgr.GetUsbCert();
             if (serverInfo.address != null)
-                checkForAuthorization();
-            updateStatuses();
+                CheckIfAuthorized();
+            UpdateStatuses();
+        }
+
+        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Show();
+            this.WindowState = FormWindowState.Normal;
+            notifyIcon.Visible = false;
         }
 
         private void OnDriveArrived(object sender, DriveDetectorEventArgs e)
-        {                        
+        {
             e.HookQueryRemove = false;
 
             if (!authorized)
             {
-                certUSB = certMgr.getUsbCert();
+                certUSB = certMgr.GetUsbCert();
                 if (certUSB.userType == "admin")
                     superUser = true;
                 else superUser = false;
 
                 if (serverInfo.address != null)
                 {
-                    checkForAuthorization();                    
-                    updateStatuses();
-                }                                 
+                    CheckIfAuthorized();
+                    UpdateStatuses();
+                }
             }
             else
             {
-                var tempUsbCert = certMgr.getUsbCert(e.Drive);
+                var tempUsbCert = certMgr.GetUsbCert(e.Drive);
                 if (tempUsbCert.userType == "admin")
                     superUser = true;
                 else superUser = false;
@@ -176,55 +249,34 @@ namespace Emplokey
                 if (tempUsbCert.userType == "admin" && certUSB.userType != "admin")
                 {
                     certUSB = tempUsbCert;
-                    checkForAuthorization();
+                    CheckIfAuthorized();
                     if (!authorized)
                     {
-                        certUSB = certMgr.getUsbCert();
+                        certUSB = certMgr.GetUsbCert();
                         if (certUSB.userType == "admin")
                             superUser = true;
                         else superUser = false;
 
-                        checkForAuthorization();
-                    }                                  
-                    updateStatuses();
+                        CheckIfAuthorized();
+                    }
+                    UpdateStatuses();
                 }
-            }             
+            }
         }
 
         private void OnDriveRemoved(object sender, DriveDetectorEventArgs e)
         {
             if (connected && certUSB.path != null && certUSB.path.Contains(e.Drive))
             {
-                certUSB = certMgr.getUsbCert();
+                certUSB = certMgr.GetUsbCert();
                 if (certUSB.userType == "admin")
                     superUser = true;
                 else superUser = false;
 
-                checkForAuthorization();
-            }            
-
-            updateStatuses();
-        }        
-
-        private void lockingProcess()
-        {
-            try
-            {
-                for (int i = settingsHelper.counter; i >= 0; i--)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    if (labelCounting.InvokeRequired)
-                        labelCounting.Invoke(new Action(() => labelCounting.Text = i.ToString() + "s. to lock!"));
-
-                    Thread.Sleep(1000);
-                }
-                MessageBox.Show("LOCKED");
+                CheckIfAuthorized();
             }
-            catch (OperationCanceledException)
-            {
-                labelCounting.Invoke(new Action(() => labelCounting.Text = ""));
-            }
+
+            UpdateStatuses();
         }
 
         protected override void WndProc(ref Message m)
@@ -235,51 +287,6 @@ namespace Emplokey
             {
                 driveDetector.WndProc(ref m);
             }
-        }
-
-        private void Form_main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            MessageBox.Show("Can't close the application.");
-            e.Cancel = true;
-        }
-
-        private void Form_main_Load(object sender, EventArgs e)
-        {
-            connMgr.getServerSettings(this);
-            certUSB = certMgr.getUsbCert();
-
-            if (serverInfo.address == null)
-            {
-                MessageBox.Show("Server settings are not ready yet!\nGo to Certificates manager and create new connection.");
-            }
-            else
-            {
-                checkForAuthorization();
-            }
-
-            updateStatuses();
-        }
-
-        private void Form_main_Resize(object sender, EventArgs e)
-        {
-            if (this.WindowState == FormWindowState.Minimized)
-            {
-                Hide();
-                notifyIcon.Visible = true;
-            }
-        }
-
-        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            Show();
-            this.WindowState = FormWindowState.Normal;
-            notifyIcon.Visible = false;
-        }
-
-        private void RegisterAtStartup()
-        {
-            RegistryKey regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\MICROSOFT\\Windows\\CurrentVersion\\Run", true);
-            regKey.SetValue("Emplokey", Application.ExecutablePath);
         }
     }
 }

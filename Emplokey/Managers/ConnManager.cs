@@ -9,7 +9,7 @@ namespace Emplokey
 {
     public class ConnManager
     {
-        public void saveSettings(ServerInfo serverInfo)
+        public void SaveServerInfo(ServerInfo serverInfo)
         {            
             if (!File.Exists(settingsHelper.userPath + settingsHelper.defaultSettingsFile))
             {
@@ -37,8 +37,10 @@ namespace Emplokey
             }
         }
 
-        public void getServerSettings(Form_main formMain)
+        public ServerInfo LoadServerInfo()
         {
+            var newServerInfo = new ServerInfo();
+
             if (File.Exists(settingsHelper.userPath + settingsHelper.defaultSettingsFile))
             {
                 XDocument xSettings = XDocument.Load(settingsHelper.userPath + settingsHelper.defaultSettingsFile);
@@ -46,12 +48,14 @@ namespace Emplokey
                 var queryServer = (from q in xSettings.Descendants("Server")
                                    select q).First();
 
-                formMain.serverInfo.address = queryServer.Element("Address").Value;
-                formMain.serverInfo.dbName = queryServer.Element("DbName").Value;
+                newServerInfo.address = queryServer.Element("Address").Value;
+                newServerInfo.dbName = queryServer.Element("DbName").Value;
             }
+
+            return newServerInfo;
         }      
         
-        public bool tryToConnect(ServerInfo serverInfo)
+        public bool TryToConnect(ServerInfo serverInfo)
         {
             string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
 

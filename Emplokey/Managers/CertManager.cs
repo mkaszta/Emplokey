@@ -10,25 +10,66 @@ namespace Emplokey
 {
     public class CertManager
     {
-        public void createCert(Form_main formMain, string path)
+        public Cert GetUsbCert()
         {
-            formMain.certUSB.user = WindowsIdentity.GetCurrent().Name;
-            formMain.certUSB.pcName = SystemInformation.ComputerName;
-            formMain.certUSB.path = path + settingsHelper.defaultCertName;
+            var newCert = new Cert();
+            var drivesList = DriveInfo.GetDrives();
+            foreach (var drive in drivesList)
+            {
+                if ((File.Exists(drive + settingsHelper.defaultCertName)) && (newCert.userType == null || newCert.userType == "user"))
+                {
+                    XDocument xCertUsb = XDocument.Load(drive + settingsHelper.defaultCertName);
+
+                    newCert.user = xCertUsb.Descendants("User").Single().Value;
+                    newCert.pcName = xCertUsb.Descendants("PcName").Single().Value;
+                    newCert.userType = xCertUsb.Descendants("UserType").Single().Value;
+                    newCert.path = drive + settingsHelper.defaultCertName;
+                    newCert.loaded = true;
+                }
+                if (newCert.userType == "admin")
+                    break;
+            }
+
+            return newCert;
+        }
+
+        public Cert GetUsbCert(string drive)
+        {
+            var newCert = new Cert();
+
+            if (File.Exists(drive + settingsHelper.defaultCertName))
+            {
+                XDocument xCertUsb = XDocument.Load(drive + settingsHelper.defaultCertName);
+
+                newCert.user = xCertUsb.Descendants("User").Single().Value;
+                newCert.pcName = xCertUsb.Descendants("PcName").Single().Value;
+                newCert.userType = xCertUsb.Descendants("UserType").Single().Value;
+                newCert.path = drive + settingsHelper.defaultCertName;
+                newCert.loaded = true;
+            }
+
+            return newCert;
+        }
+
+        public void CreateCert(Cert cert, string path)
+        {
+            cert.user = WindowsIdentity.GetCurrent().Name;
+            cert.pcName = SystemInformation.ComputerName;
+            cert.path = path + settingsHelper.defaultCertName;
 
             XDocument xCert = new XDocument(
                 new XDeclaration("1.0", "UTF-16", null),
                 new XElement(settingsHelper.xNameSpace + "EmplokeyCert",
-                    new XElement("User", formMain.certUSB.user),
-                    new XElement("PcName", formMain.certUSB.pcName),
+                    new XElement("User", cert.user),
+                    new XElement("PcName", cert.pcName),
                     new XElement("UserType", "user"),
-                    new XElement("AuthKey", formMain.certUSB.HashedAuthKey)                    
+                    new XElement("AuthKey", cert.HashedAuthKey)                    
                     ));
 
-            xCert.Save(formMain.certUSB.path);
+            xCert.Save(cert.path);
         }
 
-        public void setPcLockStatus(ServerInfo serverInfo, Cert certificate, int lockPc)
+        public void SetPcLockStatus(ServerInfo serverInfo, Cert cert, int lockPc)
         {
             string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
@@ -38,14 +79,14 @@ namespace Emplokey
             try
             {
                 var queryUser = from u in database.Users
-                                where u.Username == certificate.user
+                                where u.Username == cert.user
                                 select u;
 
                 if (queryUser.Count() == 0)
                 {
                     User newUser = new User
                     {
-                        Username = certificate.user,
+                        Username = cert.user,
                         Type = "user"                        
                     };
 
@@ -60,7 +101,7 @@ namespace Emplokey
                 {
                     Computer newPC = new Computer
                     {
-                        PC_name = certificate.pcName,
+                        PC_name = cert.pcName,
                         Lock_status = lockPc
                     };                  
 
@@ -85,8 +126,8 @@ namespace Emplokey
                     {
                         ID_pc = queryPC.First().ID,
                         ID_user = queryUser.First().ID,
-                        Auth_key = certificate.HashedAuthKey,
-                        Device = certificate.deviceId                        
+                        Auth_key = cert.HashedAuthKey,
+                        Device = cert.deviceId                        
                     };
 
                     database.Auths.InsertOnSubmit(newAuth);                                                                            
@@ -104,39 +145,7 @@ namespace Emplokey
             }            
         }
 
-        public void getUserType(Form_main formMain, ServerInfo serverInfo)
-        {
-            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
-            SqlConnection connection = new SqlConnection(connString);
-            DataClassesDataContext database = new DataClassesDataContext();
-
-            try
-            {
-                connection.Open();
-
-                var queryUser = from u in database.Users
-                                where u.Username == formMain.certUSB.user
-                                select u;
-
-                if (queryUser.Any())
-                {
-                    if (queryUser.First().Type == "admin")
-                        formMain.superUser = true;
-                    else
-                        formMain.superUser = false;
-                }
-                else
-                {                    
-                    formMain.superUser = false;
-                }                    
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        public bool getPcLockStatus(Form_main formMain, ServerInfo serverInfo)
+        public bool GetPcLockStatus(ServerInfo serverInfo)
         {
             string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
@@ -168,7 +177,40 @@ namespace Emplokey
             }
         }
 
-        public bool tryToAuthorize(Form_main formMain, ServerInfo serverInfo)
+        public bool GetUserType(Cert cert, ServerInfo serverInfo)
+        {
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
+            SqlConnection connection = new SqlConnection(connString);
+            DataClassesDataContext database = new DataClassesDataContext();
+
+            try
+            {
+                connection.Open();
+
+                var queryUser = from u in database.Users
+                                where u.Username == cert.user
+                                select u;
+
+                if (queryUser.Any())
+                {
+                    if (queryUser.First().Type == "admin")
+                        return true;
+                    else
+                        return false;
+                }
+                else
+                {
+                    return false;
+                }                    
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
+            }
+        }        
+
+        public bool TryToAuthorize(ServerInfo serverInfo, Cert cert, bool superUser)
         {
             string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
@@ -178,13 +220,13 @@ namespace Emplokey
             {
                 connection.Open();            
 
-                if (formMain.superUser)
+                if (superUser)
                 {
-                    formMain.superUser = true;
+                    superUser = true;
                     var queryAuth = from a in database.Auths
                                 join u in database.Users on a.ID_user equals u.ID
                                 join c in database.Computers on a.ID_pc equals c.ID
-                                where u.Username == formMain.certUSB.user && a.Device == formMain.certUSB.deviceId
+                                where u.Username == cert.user && a.Device == cert.deviceId
                                 select new
                                 {
                                     u.Type,
@@ -193,18 +235,18 @@ namespace Emplokey
 
                     if (!queryAuth.Any())
                         return false;
-                    else if (queryAuth.First().Auth_key == formMain.certUSB.HashedAuthKey)
+                    else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
                         return true;                    
                     else
                         return false;                    
                 }
                 else
                 {
-                    formMain.superUser = false;
+                    superUser = false;
                     var queryAuth = from a in database.Auths
                                 join u in database.Users on a.ID_user equals u.ID
                                 join c in database.Computers on a.ID_pc equals c.ID
-                                where u.Username == formMain.certUSB.user && c.PC_name == formMain.certUSB.pcName
+                                where u.Username == cert.user && c.PC_name == cert.pcName
                                 select new
                                 {
                                     u.Type,
@@ -213,7 +255,7 @@ namespace Emplokey
 
                     if (queryAuth.Count() == 0)
                         return false;
-                    else if (queryAuth.First().Auth_key == formMain.certUSB.HashedAuthKey)
+                    else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
                         return true;
                     else
                         return false;
@@ -226,47 +268,6 @@ namespace Emplokey
             }
                         
             return false;
-        }
-        
-        public Cert getUsbCert()
-        {
-            var newCert = new Cert();
-            var drivesList = DriveInfo.GetDrives();
-            foreach (var drive in drivesList)
-            {
-                if ((File.Exists(drive + settingsHelper.defaultCertName)) && (newCert.userType == null || newCert.userType == "user"))
-                {
-                    XDocument xCertUsb = XDocument.Load(drive + settingsHelper.defaultCertName);
-
-                    newCert.user = xCertUsb.Descendants("User").Single().Value;
-                    newCert.pcName = xCertUsb.Descendants("PcName").Single().Value;
-                    newCert.userType = xCertUsb.Descendants("UserType").Single().Value;
-                    newCert.path = drive + settingsHelper.defaultCertName;
-                    newCert.loaded = true;                    
-                }
-                if (newCert.userType == "admin")
-                    break;
-            }
-                        
-            return newCert;
-        }
-
-        public Cert getUsbCert(string drive)
-        {
-            var newCert = new Cert();
-
-            if (File.Exists(drive + settingsHelper.defaultCertName))
-            {
-                XDocument xCertUsb = XDocument.Load(drive + settingsHelper.defaultCertName);
-
-                newCert.user = xCertUsb.Descendants("User").Single().Value;
-                newCert.pcName = xCertUsb.Descendants("PcName").Single().Value;
-                newCert.userType = xCertUsb.Descendants("UserType").Single().Value;
-                newCert.path = drive + settingsHelper.defaultCertName;
-                newCert.loaded = true;                
-            }
-
-            return newCert;
-        }
+        }               
     }
 }

@@ -37,7 +37,7 @@
             this.btnPcUnlock = new System.Windows.Forms.Button();
             this.groupBoxUsbCertificates = new System.Windows.Forms.GroupBox();
             this.groupBoxServer = new System.Windows.Forms.GroupBox();
-            this.buttonRevert = new System.Windows.Forms.Button();
+            this.btnRevert = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.labelDbName = new System.Windows.Forms.Label();
             this.textBoxDbName = new System.Windows.Forms.TextBox();
@@ -138,7 +138,7 @@
             // 
             // groupBoxServer
             // 
-            this.groupBoxServer.Controls.Add(this.buttonRevert);
+            this.groupBoxServer.Controls.Add(this.btnRevert);
             this.groupBoxServer.Controls.Add(this.btnSave);
             this.groupBoxServer.Controls.Add(this.labelDbName);
             this.groupBoxServer.Controls.Add(this.textBoxDbName);
@@ -151,15 +151,15 @@
             this.groupBoxServer.TabStop = false;
             this.groupBoxServer.Text = "Server";
             // 
-            // buttonRevert
+            // btnRevert
             // 
-            this.buttonRevert.Location = new System.Drawing.Point(170, 104);
-            this.buttonRevert.Name = "buttonRevert";
-            this.buttonRevert.Size = new System.Drawing.Size(92, 23);
-            this.buttonRevert.TabIndex = 28;
-            this.buttonRevert.Text = "Revert changes";
-            this.buttonRevert.UseVisualStyleBackColor = true;
-            this.buttonRevert.Click += new System.EventHandler(this.buttonRevert_Click);
+            this.btnRevert.Location = new System.Drawing.Point(170, 104);
+            this.btnRevert.Name = "btnRevert";
+            this.btnRevert.Size = new System.Drawing.Size(92, 23);
+            this.btnRevert.TabIndex = 28;
+            this.btnRevert.Text = "Revert changes";
+            this.btnRevert.UseVisualStyleBackColor = true;
+            this.btnRevert.Click += new System.EventHandler(this.btnRevert_Click);
             // 
             // btnSave
             // 
@@ -259,7 +259,7 @@
         private System.Windows.Forms.Button btnRemoveCert;
         private System.Windows.Forms.GroupBox groupBoxUsbCertificates;
         private System.Windows.Forms.GroupBox groupBoxServer;
-        private System.Windows.Forms.Button buttonRevert;
+        private System.Windows.Forms.Button btnRevert;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Label labelDbName;
         private System.Windows.Forms.TextBox textBoxDbName;
