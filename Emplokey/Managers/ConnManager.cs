@@ -50,6 +50,7 @@ namespace Emplokey
 
                 newServerInfo.address = queryServer.Element("Address").Value;
                 newServerInfo.dbName = queryServer.Element("DbName").Value;
+                newServerInfo.loaded = true;
             }
 
             return newServerInfo;

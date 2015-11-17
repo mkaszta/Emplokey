@@ -5,35 +5,13 @@ using System.Linq;
 using System.Security.Principal;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using System.Collections.Generic;
 
 namespace Emplokey
 {
     public class CertManager
     {
-        public Cert GetUsbCert()
-        {
-            var newCert = new Cert();
-            var drivesList = DriveInfo.GetDrives();
-            foreach (var drive in drivesList)
-            {
-                if ((File.Exists(drive + settingsHelper.defaultCertName)) && (newCert.userType == null || newCert.userType == "user"))
-                {
-                    XDocument xCertUsb = XDocument.Load(drive + settingsHelper.defaultCertName);
-
-                    newCert.user = xCertUsb.Descendants("User").Single().Value;
-                    newCert.pcName = xCertUsb.Descendants("PcName").Single().Value;
-                    newCert.userType = xCertUsb.Descendants("UserType").Single().Value;
-                    newCert.path = drive + settingsHelper.defaultCertName;
-                    newCert.loaded = true;
-                }
-                if (newCert.userType == "admin")
-                    break;
-            }
-
-            return newCert;
-        }
-
-        public Cert GetUsbCert(string drive)
+        public Cert LoadUsbCert(List<Cert> certList, string drive)
         {
             var newCert = new Cert();
 
@@ -91,6 +69,7 @@ namespace Emplokey
                     };
 
                     database.Users.InsertOnSubmit(newUser);
+                    database.SubmitChanges();
                 }
 
                 var queryPC = from u in database.Computers
@@ -106,19 +85,29 @@ namespace Emplokey
                     };                  
 
                     database.Computers.InsertOnSubmit(newPC);
+                    database.SubmitChanges();
                     MessageBox.Show("This PC is now LOCKED.");
                 }
                 else
                 {
                     queryPC.First().Lock_status = lockPc;
-                    if (lockPc == 1)
-                        MessageBox.Show("This PC is now LOCKED.");
-                    else MessageBox.Show("This PC is now UNLOCKED.");
-                }                
+                    database.SubmitChanges();
+                    if (lockPc == 1)                                            
+                        MessageBox.Show("This PC is now LOCKED.");                                                                
+                    else MessageBox.Show("This PC is now UNLOCKED.");                                                             
+                }
 
-                var queryAuth = from u in database.Auths
-                                where u.ID_pc == queryPC.First().ID && u.ID_user == queryUser.First().ID
+                queryUser = from u in database.Users
+                                where u.Username == cert.user
                                 select u;
+
+                queryPC = from u in database.Computers
+                              where u.PC_name == Environment.MachineName
+                              select u;
+
+                var queryAuth = from a in database.Auths
+                                where a.ID_user == queryUser.First().ID && a.ID_pc == queryPC.First().ID
+                                select a;
 
                 if (queryAuth.Count() == 0)
                 {
@@ -130,14 +119,13 @@ namespace Emplokey
                         Device = cert.deviceId                        
                     };
 
-                    database.Auths.InsertOnSubmit(newAuth);                                                                            
+                    database.Auths.InsertOnSubmit(newAuth);
+                    database.SubmitChanges();
                 }
                 else if (lockPc == 0)
                 {
                     database.Auths.DeleteOnSubmit(queryAuth.First());
-                }
-
-                database.SubmitChanges();
+                }                
             }
             catch (Exception ex)
             {
@@ -177,40 +165,40 @@ namespace Emplokey
             }
         }
 
-        public bool GetUserType(Cert cert, ServerInfo serverInfo)
-        {
-            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
-            SqlConnection connection = new SqlConnection(connString);
-            DataClassesDataContext database = new DataClassesDataContext();
+        //public bool GetUserType(Cert cert, ServerInfo serverInfo)
+        //{
+        //    string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
+        //    SqlConnection connection = new SqlConnection(connString);
+        //    DataClassesDataContext database = new DataClassesDataContext();
 
-            try
-            {
-                connection.Open();
+        //    try
+        //    {
+        //        connection.Open();
 
-                var queryUser = from u in database.Users
-                                where u.Username == cert.user
-                                select u;
+        //        var queryUser = from u in database.Users
+        //                        where u.Username == cert.user
+        //                        select u;
 
-                if (queryUser.Any())
-                {
-                    if (queryUser.First().Type == "admin")
-                        return true;
-                    else
-                        return false;
-                }
-                else
-                {
-                    return false;
-                }                    
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                return false;
-            }
-        }        
+        //        if (queryUser.Any())
+        //        {
+        //            if (queryUser.First().Type == "admin")
+        //                return true;
+        //            else
+        //                return false;
+        //        }
+        //        else
+        //        {
+        //            return false;
+        //        }                    
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show(ex.Message);
+        //        return false;
+        //    }
+        //}        
 
-        public bool TryToAuthorize(ServerInfo serverInfo, Cert cert, bool superUser)
+        public bool TryToAuthorize(ServerInfo serverInfo, Cert cert)
         {
             string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
@@ -220,9 +208,8 @@ namespace Emplokey
             {
                 connection.Open();            
 
-                if (superUser)
-                {
-                    superUser = true;
+                if (cert.userType == "admin")
+                {                    
                     var queryAuth = from a in database.Auths
                                 join u in database.Users on a.ID_user equals u.ID
                                 join c in database.Computers on a.ID_pc equals c.ID
@@ -241,8 +228,7 @@ namespace Emplokey
                         return false;                    
                 }
                 else
-                {
-                    superUser = false;
+                {                    
                     var queryAuth = from a in database.Auths
                                 join u in database.Users on a.ID_user equals u.ID
                                 join c in database.Computers on a.ID_pc equals c.ID

@@ -10,9 +10,10 @@ namespace Emplokey
         private DriveDetector driveDetector = null;
         Form_main formMain = new Form_main();                
 
-        public Form_certificates(Form_main formMain)
+        public Form_certificates(Form_main _formMain)
         {
-            InitializeComponent();            
+            InitializeComponent();
+            formMain = _formMain;
 
             driveDetector = new DriveDetector(this);
             driveDetector.DeviceArrived += new DriveDetectorEventHandler(OnDriveArrived);
@@ -26,7 +27,7 @@ namespace Emplokey
                 groupBoxAdmin.Enabled = true;
                 groupBoxPcLock.Enabled = false;
             }
-            else if (formMain.superUser)
+            else if (formMain.masterCert.userType == "admin")
                 groupBoxAdmin.Enabled = true;
             else groupBoxAdmin.Enabled = false;
         }
@@ -102,20 +103,19 @@ namespace Emplokey
             {
                 if (listBoxDrives.SelectedIndex != -1)
                 {
-
                     if (File.Exists(listBoxDrives.SelectedItem + settingsHelper.defaultCertName))
                     {
                         DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
                         if (dialogResult == DialogResult.Yes)
                         {
-                            formMain.certMgr.CreateCert(formMain.certUSB, listBoxDrives.SelectedItem.ToString());
-                            MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
+                            formMain.certMgr.CreateCert(formMain.masterCert, listBoxDrives.SelectedItem.ToString());
+                            MessageBox.Show("Certificate created and saved under:\n" + formMain.masterCert.path);
                         }
                     }
                     else
                     {
-                        formMain.certMgr.CreateCert(formMain.certUSB, listBoxDrives.SelectedItem.ToString());
-                        MessageBox.Show("Certificate created and saved under:\n" + formMain.certUSB.path);
+                        formMain.certMgr.CreateCert(formMain.masterCert, listBoxDrives.SelectedItem.ToString());
+                        MessageBox.Show("Certificate created and saved under:\n" + formMain.masterCert.path);
                     }
                 }
                 else MessageBox.Show("Please select a flash drive to create a certificate.");
@@ -133,7 +133,7 @@ namespace Emplokey
         {
             try
             {
-                formMain.certMgr.SetPcLockStatus(formMain.serverInfo, formMain.certUSB, 1);
+                formMain.certMgr.SetPcLockStatus(formMain.serverInfo, formMain.masterCert, 1);
             }
             catch (Exception ex)
             {
@@ -145,7 +145,7 @@ namespace Emplokey
         {
             try
             {
-                formMain.certMgr.SetPcLockStatus(formMain.serverInfo, formMain.certUSB, 0);
+                formMain.certMgr.SetPcLockStatus(formMain.serverInfo, formMain.masterCert, 0);
             }
             catch (Exception ex)
             {

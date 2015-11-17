@@ -5,21 +5,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Emplokey
 {
     public partial class Form_main : Form
     {
-        private DriveDetector driveDetector = null;        
-        public Cert certUSB = new Cert() { loaded = false };
+        private DriveDetector driveDetector = null;
+        public Cert masterCert = new Cert();
+        public List<Cert> certList = new List<Cert>();
+        public ServerInfo serverInfo = new ServerInfo() { loaded = false };
         public CertManager certMgr = new CertManager();
-        public ConnManager connMgr = new ConnManager();
-        public ServerInfo serverInfo = new ServerInfo();
+        public ConnManager connMgr = new ConnManager();        
 
         public bool pcLock = false;       
         public bool authorized = false;
         public bool connected = false;
-        public bool superUser = false;
         
         public static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public static CancellationToken cancellationToken = cancellationTokenSource.Token;
@@ -39,9 +41,9 @@ namespace Emplokey
         private void Form_main_Load(object sender, EventArgs e)
         {
             serverInfo = connMgr.LoadServerInfo();
-            certUSB = certMgr.GetUsbCert();
+            LoadCertificates();          
 
-            if (serverInfo.address == null)
+            if (!serverInfo.loaded)
             {
                 MessageBox.Show("Server settings are not ready yet!\nGo to Certificates manager and create new connection.");
             }
@@ -68,6 +70,32 @@ namespace Emplokey
             }
         }
 
+        private void LoadCertificates()
+        {
+            var drivesList = DriveInfo.GetDrives();
+            foreach (var drive in drivesList)
+            {
+                if ((drive.DriveType == DriveType.Removable || drive.DriveType == DriveType.Fixed) && File.Exists(drive.Name + settingsHelper.defaultCertName))
+                    certList.Add(certMgr.LoadUsbCert(certList, drive.Name));                
+            }
+
+            SetMasterCert();                        
+        }
+
+        private void SetMasterCert()
+        {
+            foreach (var cert in certList)
+            {
+                if (!masterCert.loaded)
+                    masterCert = cert;
+                else if (masterCert.userType == "user" && cert.userType == "admin")
+                    masterCert = cert;
+
+                if (cert.userType == "admin")
+                    break;
+            }
+        }
+
         private void CheckIfAuthorized()
         {                        
             connected = connMgr.TryToConnect(serverInfo);
@@ -76,7 +104,7 @@ namespace Emplokey
                 pcLock = certMgr.GetPcLockStatus(serverInfo);
                 if (pcLock)
                 {
-                    authorized = certMgr.TryToAuthorize(serverInfo, certUSB, superUser);
+                    authorized = certMgr.TryToAuthorize(serverInfo, masterCert);
                     if (authorized)
                         cancellationTokenSource.Cancel();
                     else
@@ -138,25 +166,26 @@ namespace Emplokey
                     labelLockInfo.ForeColor = Color.Green;
 
                     if (authorized)
-                    {
-                        superUser = certMgr.GetUserType(certUSB, serverInfo);
-
+                    {                       
                         labelAuthorizationInfo.Text = "AUTHORIZED";
                         labelAuthorizationInfo.ForeColor = Color.Green;
 
-                        if (superUser)
+                        if (masterCert.userType == "admin")
                         {
                             labelSuInfo.Text = "admin mode";
+                            notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is authorized\n(admin mode)", ToolTipIcon.Info);
                         }
                         else
                         {
                             labelSuInfo.Text = "user mode";
+                            notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is authorized\n(user mode)", ToolTipIcon.Info);
                         }
                     }
                     else
                     {
                         labelAuthorizationInfo.Text = "NOT AUTHORIZED";
                         labelAuthorizationInfo.ForeColor = Color.Red;
+                        notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is NOT authorized!", ToolTipIcon.Error);
 
                         labelSuInfo.Text = "";
                     }
@@ -180,7 +209,7 @@ namespace Emplokey
                 labelSuInfo.Text = "";
             }
 
-            if (certUSB.loaded)
+            if (masterCert.loaded)
             {
                 labelUsbCertificateInfo.Text = "found";
                 labelUsbCertificateInfo.ForeColor = Color.Green;
@@ -189,18 +218,7 @@ namespace Emplokey
             {
                 labelUsbCertificateInfo.Text = "not found";
                 labelUsbCertificateInfo.ForeColor = Color.Red;
-            }
-
-            // baloon notification
-            if (authorized)
-            {
-                if (superUser)
-                    notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is authorized\n(admin mode)", ToolTipIcon.Info);
-                else
-                    notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is authorized\n(user mode)", ToolTipIcon.Info);
-            }                
-            else
-                notifyIcon.ShowBalloonTip(3000, "Emplokey", "User is NOT authorized!", ToolTipIcon.Error);
+            }   
         }                        
 
         private void btnCertMgr_Click(object sender, EventArgs e)
@@ -209,7 +227,8 @@ namespace Emplokey
             form_certManager.ShowDialog();
 
             serverInfo = connMgr.LoadServerInfo();
-            certUSB = certMgr.GetUsbCert();
+            LoadCertificates();
+
             if (serverInfo.address != null)
                 CheckIfAuthorized();
             UpdateStatuses();
@@ -227,36 +246,28 @@ namespace Emplokey
             e.HookQueryRemove = false;
 
             if (!authorized)
-            {
-                certUSB = certMgr.GetUsbCert();
-                if (certUSB.userType == "admin")
-                    superUser = true;
-                else superUser = false;
+            {              
+                LoadCertificates();
 
                 if (serverInfo.address != null)
                 {
                     CheckIfAuthorized();
+                    SetMasterCert();
                     UpdateStatuses();
                 }
             }
             else
             {
-                var tempUsbCert = certMgr.GetUsbCert(e.Drive);
-                if (tempUsbCert.userType == "admin")
-                    superUser = true;
-                else superUser = false;
+                var tempUsbCert = certMgr.LoadUsbCert(certList, e.Drive);
+                certList.Add(tempUsbCert);
 
-                if (tempUsbCert.userType == "admin" && certUSB.userType != "admin")
+                if (tempUsbCert.userType == "admin" && masterCert.userType != "admin")
                 {
-                    certUSB = tempUsbCert;
+                    masterCert = tempUsbCert;
                     CheckIfAuthorized();
                     if (!authorized)
                     {
-                        certUSB = certMgr.GetUsbCert();
-                        if (certUSB.userType == "admin")
-                            superUser = true;
-                        else superUser = false;
-
+                        LoadCertificates();
                         CheckIfAuthorized();
                     }
                     UpdateStatuses();
@@ -266,16 +277,13 @@ namespace Emplokey
 
         private void OnDriveRemoved(object sender, DriveDetectorEventArgs e)
         {
-            if (connected && certUSB.path != null && certUSB.path.Contains(e.Drive))
-            {
-                certUSB = certMgr.GetUsbCert();
-                if (certUSB.userType == "admin")
-                    superUser = true;
-                else superUser = false;
+            certList.RemoveAll((x) => x.path.Contains(e.Drive));
 
-                CheckIfAuthorized();
-            }
+            if (masterCert.path != null && masterCert.path.Contains(e.Drive))                         
+                masterCert.loaded = false;                
 
+            SetMasterCert();
+            CheckIfAuthorized();        
             UpdateStatuses();
         }
 
