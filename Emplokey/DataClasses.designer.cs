@@ -39,6 +39,9 @@ namespace Emplokey
     partial void InsertAuth(Auth instance);
     partial void UpdateAuth(Auth instance);
     partial void DeleteAuth(Auth instance);
+    partial void InsertLog(Log instance);
+    partial void UpdateLog(Log instance);
+    partial void DeleteLog(Log instance);
     #endregion
 		
 		public DataClassesDataContext() : 
@@ -92,6 +95,14 @@ namespace Emplokey
 			get
 			{
 				return this.GetTable<Auth>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Log> Logs
+		{
+			get
+			{
+				return this.GetTable<Log>();
 			}
 		}
 	}
@@ -449,6 +460,164 @@ namespace Emplokey
 					this._Device = value;
 					this.SendPropertyChanged("Device");
 					this.OnDeviceChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Logs")]
+	public partial class Log : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _ID;
+		
+		private int _ID_user;
+		
+		private int _ID_pc;
+		
+		private System.DateTime _Time_login;
+		
+		private System.Nullable<System.DateTime> _Time_logout;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    partial void OnID_userChanging(int value);
+    partial void OnID_userChanged();
+    partial void OnID_pcChanging(int value);
+    partial void OnID_pcChanged();
+    partial void OnTime_loginChanging(System.DateTime value);
+    partial void OnTime_loginChanged();
+    partial void OnTime_logoutChanging(System.Nullable<System.DateTime> value);
+    partial void OnTime_logoutChanged();
+    #endregion
+		
+		public Log()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID_user", DbType="Int NOT NULL")]
+		public int ID_user
+		{
+			get
+			{
+				return this._ID_user;
+			}
+			set
+			{
+				if ((this._ID_user != value))
+				{
+					this.OnID_userChanging(value);
+					this.SendPropertyChanging();
+					this._ID_user = value;
+					this.SendPropertyChanged("ID_user");
+					this.OnID_userChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID_pc", DbType="Int NOT NULL")]
+		public int ID_pc
+		{
+			get
+			{
+				return this._ID_pc;
+			}
+			set
+			{
+				if ((this._ID_pc != value))
+				{
+					this.OnID_pcChanging(value);
+					this.SendPropertyChanging();
+					this._ID_pc = value;
+					this.SendPropertyChanged("ID_pc");
+					this.OnID_pcChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Time_login", DbType="DateTime NOT NULL")]
+		public System.DateTime Time_login
+		{
+			get
+			{
+				return this._Time_login;
+			}
+			set
+			{
+				if ((this._Time_login != value))
+				{
+					this.OnTime_loginChanging(value);
+					this.SendPropertyChanging();
+					this._Time_login = value;
+					this.SendPropertyChanged("Time_login");
+					this.OnTime_loginChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Time_logout", DbType="DateTime")]
+		public System.Nullable<System.DateTime> Time_logout
+		{
+			get
+			{
+				return this._Time_logout;
+			}
+			set
+			{
+				if ((this._Time_logout != value))
+				{
+					this.OnTime_logoutChanging(value);
+					this.SendPropertyChanging();
+					this._Time_logout = value;
+					this.SendPropertyChanged("Time_logout");
+					this.OnTime_logoutChanged();
 				}
 			}
 		}

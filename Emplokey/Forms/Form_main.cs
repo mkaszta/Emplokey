@@ -23,6 +23,8 @@ namespace Emplokey
         public bool pcLock = false;       
         public bool authorized = false;
         public bool connected = false;
+
+        int sessionID = 0;
         
         public static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public static CancellationToken cancellationToken = cancellationTokenSource.Token;
@@ -81,8 +83,7 @@ namespace Emplokey
                     && !certList.Exists((x) => x.path.Contains(drive.Name)))
                     certList.Add(certMgr.LoadUsbCert(drive.Name));                
             }
-
-            certList.Distinct();
+            
             SetMasterCert();                        
         }
 
@@ -112,9 +113,12 @@ namespace Emplokey
                     {
                         authorized = certMgr.TryToAuthorize(serverInfo, masterCert);
                         if (authorized)
-                            cancellationTokenSource.Cancel();
-                        else
                         {
+                            cancellationTokenSource.Cancel();
+                            sessionID = certMgr.StartSession(serverInfo, masterCert);
+                        }                            
+                        else
+                        {                            
                             cancellationTokenSource = new CancellationTokenSource();
                             cancellationToken = cancellationTokenSource.Token;
                             Task.Factory.StartNew(() => LockingProcess(), cancellationToken);
@@ -254,35 +258,10 @@ namespace Emplokey
         private void OnDriveArrived(object sender, DriveDetectorEventArgs e)
         {
             e.HookQueryRemove = false;
-            
-            if (!authorized)
-            {
-                LoadCertificates();
 
-                if (serverInfo.address != null)
-                {
-                    CheckStatuses();
-                    SetMasterCert();
-                    UpdateStatuses();
-                }
-            }
-            else
-            {
-                var certTemp = certMgr.LoadUsbCert(e.Drive);
-                certList.Add(certTemp);
-
-                if (certTemp.userType == "admin" && masterCert.userType != "admin")
-                {
-                    masterCert = certTemp;
-                    CheckStatuses();
-                    if (!authorized)
-                    {
-                        LoadCertificates();
-                        CheckStatuses();
-                    }
-                    UpdateStatuses();
-                }
-            }  
+            LoadCertificates();            
+            CheckStatuses();
+            UpdateStatuses(); 
         }
 
         private void OnDriveRemoved(object sender, DriveDetectorEventArgs e)
@@ -290,7 +269,10 @@ namespace Emplokey
             certList.RemoveAll((x) => x.path.Contains(e.Drive));
 
             if (masterCert.path != null && masterCert.path.Contains(e.Drive))
+            {
+                certMgr.EndSession(serverInfo, sessionID);
                 masterCert.loaded = false;
+            }                
 
             SetMasterCert();
             CheckStatuses();

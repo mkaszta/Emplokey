@@ -26,8 +26,6 @@ namespace Emplokey
                 newCert.loaded = true;
             }
 
-            FileStream fs = new FileStream(drive + settingsHelper.defaultCertName, FileMode.Open);
-            fs.Lock(0, fs.Length);
             return newCert;
         }
 
@@ -231,5 +229,53 @@ namespace Emplokey
                 return false;
             }            
         }               
+
+        public int StartSession(ServerInfo serverInfo, Cert cert)
+        {
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
+            SqlConnection connection = new SqlConnection(connString);
+            connection.Open();
+            DataClassesDataContext database = new DataClassesDataContext();
+
+            var queryAuth = from a in database.Auths
+                            join u in database.Users on a.ID_user equals u.ID
+                            where a.Auth_key == cert.HashedAuthKey && u.Username == cert.user
+                            select new
+                            {
+                                a.ID_pc,
+                                a.ID_user                                
+                            };
+
+            var queryPC = from c in database.Computers
+                          where c.PC_name == SystemInformation.ComputerName
+                          select c;
+
+            Log newLog = new Log()
+            {
+                ID_pc = queryPC.First().ID,
+                ID_user = queryAuth.First().ID_user,
+                Time_login = DateTime.Now
+            };
+
+            database.Logs.InsertOnSubmit(newLog);
+            database.SubmitChanges();
+
+            return newLog.ID;
+        }
+
+        public void EndSession(ServerInfo serverInfo, int sessionId)
+        {
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
+            SqlConnection connection = new SqlConnection(connString);
+            connection.Open();
+            DataClassesDataContext database = new DataClassesDataContext();
+
+            var queryLogs = from l in database.Logs
+                            where l.ID == sessionId
+                            select l;
+
+            queryLogs.First().Time_logout = DateTime.Now;
+            database.SubmitChanges();
+        }
     }
 }
