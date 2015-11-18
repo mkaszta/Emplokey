@@ -131,14 +131,23 @@ namespace Emplokey
 
         private void btnPcLock_Click(object sender, EventArgs e)
         {
-            try
+            Cert certTemp = formMain.certList.Find((x) => x.userType == "user");
+
+            if (certTemp != null)
             {
-                formMain.certMgr.SetPcLockStatus(formMain.serverInfo, formMain.masterCert, 1);
+                try
+                {
+                    formMain.certMgr.SetPcLockStatus(formMain.serverInfo, certTemp, 1);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show(ex.Message);
-            }
+                MessageBox.Show("User certificate not found.\nPC can be locked only for the specific user.");
+            }            
         }
 
         private void btnPcUnlock_Click(object sender, EventArgs e)
@@ -150,7 +159,7 @@ namespace Emplokey
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            }
+            }          
         }
 
         private void btnSave_Click(object sender, EventArgs e)

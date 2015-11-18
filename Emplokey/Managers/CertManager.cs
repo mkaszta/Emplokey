@@ -11,7 +11,7 @@ namespace Emplokey
 {
     public class CertManager
     {
-        public Cert LoadUsbCert(List<Cert> certList, string drive)
+        public Cert LoadUsbCert(string drive)
         {
             var newCert = new Cert();
 
@@ -26,6 +26,8 @@ namespace Emplokey
                 newCert.loaded = true;
             }
 
+            FileStream fs = new FileStream(drive + settingsHelper.defaultCertName, FileMode.Open);
+            fs.Lock(0, fs.Length);
             return newCert;
         }
 
@@ -86,14 +88,14 @@ namespace Emplokey
 
                     database.Computers.InsertOnSubmit(newPC);
                     database.SubmitChanges();
-                    MessageBox.Show("This PC is now LOCKED.");
+                    MessageBox.Show("This PC is now LOCKED.\n\nUser authorize on this PC:\n" + cert.user);
                 }
                 else
                 {
                     queryPC.First().Lock_status = lockPc;
                     database.SubmitChanges();
                     if (lockPc == 1)                                            
-                        MessageBox.Show("This PC is now LOCKED.");                                                                
+                        MessageBox.Show("This PC is now LOCKED.\n\nUser authorize on this PC:\n" + cert.user);                                                                
                     else MessageBox.Show("This PC is now UNLOCKED.");                                                             
                 }
 
@@ -165,95 +167,69 @@ namespace Emplokey
             }
         }
 
-        //public bool GetUserType(Cert cert, ServerInfo serverInfo)
-        //{
-        //    string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
-        //    SqlConnection connection = new SqlConnection(connString);
-        //    DataClassesDataContext database = new DataClassesDataContext();
-
-        //    try
-        //    {
-        //        connection.Open();
-
-        //        var queryUser = from u in database.Users
-        //                        where u.Username == cert.user
-        //                        select u;
-
-        //        if (queryUser.Any())
-        //        {
-        //            if (queryUser.First().Type == "admin")
-        //                return true;
-        //            else
-        //                return false;
-        //        }
-        //        else
-        //        {
-        //            return false;
-        //        }                    
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show(ex.Message);
-        //        return false;
-        //    }
-        //}        
-
         public bool TryToAuthorize(ServerInfo serverInfo, Cert cert)
         {
-            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
-            SqlConnection connection = new SqlConnection(connString);
-            DataClassesDataContext database = new DataClassesDataContext();
-
-            try
+            if (cert.loaded)
             {
-                connection.Open();            
+                string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
+                SqlConnection connection = new SqlConnection(connString);
+                DataClassesDataContext database = new DataClassesDataContext();
 
-                if (cert.userType == "admin")
-                {                    
-                    var queryAuth = from a in database.Auths
-                                join u in database.Users on a.ID_user equals u.ID
-                                join c in database.Computers on a.ID_pc equals c.ID
-                                where u.Username == cert.user && a.Device == cert.deviceId
-                                select new
-                                {
-                                    u.Type,
-                                    a.Auth_key
-                                };
+                try
+                {
+                    connection.Open();
 
-                    if (!queryAuth.Any())
-                        return false;
-                    else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
-                        return true;                    
+                    if (cert.userType == "admin")
+                    {
+                        var queryAuth = from a in database.Auths
+                                        join u in database.Users on a.ID_user equals u.ID
+                                        join c in database.Computers on a.ID_pc equals c.ID
+                                        where u.Username == cert.user && a.Device == cert.deviceId
+                                        select new
+                                        {
+                                            u.Type,
+                                            a.Auth_key
+                                        };
+
+                        if (!queryAuth.Any())
+                            return false;
+                        else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
+                            return true;
+                        else
+                            return false;
+                    }
                     else
-                        return false;                    
-                }
-                else
-                {                    
-                    var queryAuth = from a in database.Auths
-                                join u in database.Users on a.ID_user equals u.ID
-                                join c in database.Computers on a.ID_pc equals c.ID
-                                where u.Username == cert.user && c.PC_name == cert.pcName
-                                select new
-                                {
-                                    u.Type,
-                                    a.Auth_key
-                                };
+                    {
+                        var queryAuth = from a in database.Auths
+                                        join u in database.Users on a.ID_user equals u.ID
+                                        join c in database.Computers on a.ID_pc equals c.ID
+                                        where u.Username == cert.user && c.PC_name == cert.pcName
+                                        select new
+                                        {
+                                            u.Type,
+                                            a.Auth_key
+                                        };
 
-                    if (queryAuth.Count() == 0)
-                        return false;
-                    else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
-                        return true;
-                    else
-                        return false;
+                        if (queryAuth.Count() == 0)
+                            return false;
+                        else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
+                            return true;
+                        else
+                            return false;
+                    }
+
                 }
-                                      
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+                return false;
             }
-            catch(Exception ex)
+            else
             {
-                MessageBox.Show(ex.Message);
-            }
-                        
-            return false;
+                return false;
+            }            
         }               
     }
 }
