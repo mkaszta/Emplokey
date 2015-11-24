@@ -2,18 +2,30 @@
 using System.Windows.Forms;
 using Dolinay;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Emplokey
 {
     public partial class Form_certificates : Form
     {
         private DriveDetector driveDetector = null;
-        Form_main formMain = new Form_main();                
+        ServerInfo serverInfo = new ServerInfo();
+        CertManager certMgr = new CertManager();
+        ConnManager connMgr = new ConnManager();
+        Cert masterCert = new Cert();
+        bool connected = false;
+        List<Cert> certList = new List<Cert>();
 
-        public Form_certificates(Form_main _formMain)
+        public Form_certificates(ServerInfo _serverInfo, ConnManager _connMgr, CertManager _certMgr, Cert _masterCert, bool _connected, List<Cert> _certList)
         {
             InitializeComponent();
-            formMain = _formMain;
+
+            serverInfo = _serverInfo;
+            masterCert = _masterCert;
+            certMgr = _certMgr;
+            connMgr = _connMgr;
+            connected = _connected;
+            certList = _certList;
 
             driveDetector = new DriveDetector(this);
             driveDetector.DeviceArrived += new DriveDetectorEventHandler(OnDriveArrived);
@@ -22,20 +34,25 @@ namespace Emplokey
             UpdateDriveList();
             FillServerSettingsBoxes();
 
-            if (!formMain.connected)
+            if (!connected)
             {
                 groupBoxAdmin.Enabled = true;
                 groupBoxPcLock.Enabled = false;
             }
-            else if (formMain.masterCert.userType == "admin")
+            else if (masterCert.userType == "admin")
+            {
                 groupBoxAdmin.Enabled = true;
-            else groupBoxAdmin.Enabled = false;
+            }
+            else
+            {
+                groupBoxAdmin.Enabled = false;
+            }
         }
 
         private void FillServerSettingsBoxes()
         {
-            textBoxAddress.Text = formMain.serverInfo.address;
-            textBoxDbName.Text = formMain.serverInfo.dbName;                     
+            textBoxAddress.Text = serverInfo.address;
+            textBoxDbName.Text = serverInfo.dbName;                     
         }
 
         private void UpdateDriveList()
@@ -108,14 +125,14 @@ namespace Emplokey
                         DialogResult dialogResult = MessageBox.Show("Certificate under specified path already exists.\nDo you want to overwrite it?", "Certificate creation", MessageBoxButtons.YesNo);
                         if (dialogResult == DialogResult.Yes)
                         {
-                            formMain.certMgr.CreateCert(formMain.masterCert, listBoxDrives.SelectedItem.ToString());
-                            MessageBox.Show("Certificate created and saved under:\n" + formMain.masterCert.path);
+                            certMgr.CreateCert(masterCert, listBoxDrives.SelectedItem.ToString());
+                            MessageBox.Show("Certificate created and saved under:\n" + masterCert.path);
                         }
                     }
                     else
                     {
-                        formMain.certMgr.CreateCert(formMain.masterCert, listBoxDrives.SelectedItem.ToString());
-                        MessageBox.Show("Certificate created and saved under:\n" + formMain.masterCert.path);
+                        certMgr.CreateCert(masterCert, listBoxDrives.SelectedItem.ToString());
+                        MessageBox.Show("Certificate created and saved under:\n" + masterCert.path);
                     }
                 }
                 else MessageBox.Show("Please select a flash drive to create a certificate.");
@@ -131,13 +148,13 @@ namespace Emplokey
 
         private void btnPcLock_Click(object sender, EventArgs e)
         {
-            Cert certTemp = formMain.certList.Find((x) => x.userType == "user");
+            Cert certTemp = certList.Find((x) => x.userType == "user");
 
             if (certTemp != null)
             {
                 try
                 {
-                    formMain.certMgr.SetPcLockStatus(formMain.serverInfo, certTemp, 1);
+                    certMgr.SetPcLockStatus(serverInfo, certTemp, 1);
                 }
                 catch (Exception ex)
                 {
@@ -152,14 +169,23 @@ namespace Emplokey
 
         private void btnPcUnlock_Click(object sender, EventArgs e)
         {
-            try
+            Cert certTemp = certList.Find((x) => x.userType == "user");
+
+            if (certTemp != null)
             {
-                formMain.certMgr.SetPcLockStatus(formMain.serverInfo, formMain.masterCert, 0);
+                try
+                {
+                    certMgr.SetPcLockStatus(serverInfo, certTemp, 0);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show(ex.Message);
-            }          
+                MessageBox.Show("User certificate not found.\nPC can be unlocked only for the specific user.");
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -178,10 +204,10 @@ namespace Emplokey
 
             try
             {
-                formMain.serverInfo.address = textBoxAddress.Text;
-                formMain.serverInfo.dbName = textBoxDbName.Text;
+                serverInfo.address = textBoxAddress.Text;
+                serverInfo.dbName = textBoxDbName.Text;
 
-                formMain.connMgr.SaveServerInfo(formMain.serverInfo);
+                connMgr.SaveServerInfo(serverInfo);
                 MessageBox.Show("Server settings saved.");
             }
             catch (Exception ex)

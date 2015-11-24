@@ -103,8 +103,8 @@ namespace Emplokey
 
         private void CheckStatuses()
         {
-            Thread thread = new Thread(() =>
-            {
+            //Thread thread = new Thread(() =>
+            //{
                 connected = connMgr.TryToConnect(serverInfo);
                 if (connected)
                 {
@@ -127,10 +127,10 @@ namespace Emplokey
                     else cancellationTokenSource.Cancel();
                 }
                 else cancellationTokenSource.Cancel();
-            });
+            //});
 
-            thread.Start();
-            thread.Join();                             
+            //thread.Start();
+            //thread.Join();
         }
 
         private void LockingProcess()
@@ -237,7 +237,7 @@ namespace Emplokey
 
         private void btnCertMgr_Click(object sender, EventArgs e)
         {
-            var form_certManager = new Form_certificates(this);
+            var form_certManager = new Form_certificates(serverInfo, connMgr, certMgr, masterCert, connected, certList);
             form_certManager.ShowDialog();
 
             serverInfo = connMgr.LoadServerInfo();
@@ -271,6 +271,7 @@ namespace Emplokey
             if (masterCert.path != null && masterCert.path.Contains(e.Drive))
             {
                 certMgr.EndSession(serverInfo, sessionID);
+                sessionID = 0;
                 masterCert.loaded = false;
             }                
 

@@ -41,7 +41,7 @@ namespace Emplokey
                     new XElement("User", cert.user),
                     new XElement("PcName", cert.pcName),
                     new XElement("UserType", "user"),
-                    new XElement("AuthKey", cert.HashedAuthKey)                    
+                    new XElement("AuthKey", cert.HashedAuthKey)
                     ));
 
             xCert.Save(cert.path);
@@ -51,11 +51,12 @@ namespace Emplokey
         {
             string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
-            connection.Open();
             DataClassesDataContext database = new DataClassesDataContext();
-            
+
             try
             {
+                connection.Open();
+
                 var queryUser = from u in database.Users
                                 where u.Username == cert.user
                                 select u;
@@ -65,7 +66,7 @@ namespace Emplokey
                     User newUser = new User
                     {
                         Username = cert.user,
-                        Type = "user"                        
+                        Type = "user"
                     };
 
                     database.Users.InsertOnSubmit(newUser);
@@ -73,8 +74,8 @@ namespace Emplokey
                 }
 
                 var queryPC = from u in database.Computers
-                                where u.PC_name == Environment.MachineName
-                                select u;
+                              where u.PC_name == Environment.MachineName
+                              select u;
 
                 if (queryPC.Count() == 0)
                 {
@@ -82,28 +83,28 @@ namespace Emplokey
                     {
                         PC_name = cert.pcName,
                         Lock_status = lockPc
-                    };                  
+                    };
 
                     database.Computers.InsertOnSubmit(newPC);
                     database.SubmitChanges();
-                    MessageBox.Show("This PC is now LOCKED.\n\nUser authorize on this PC:\n" + cert.user);
+                    MessageBox.Show("This PC is now LOCKED.\n\nUser authorized on this PC:\n" + cert.user);
                 }
                 else
                 {
                     queryPC.First().Lock_status = lockPc;
                     database.SubmitChanges();
-                    if (lockPc == 1)                                            
-                        MessageBox.Show("This PC is now LOCKED.\n\nUser authorize on this PC:\n" + cert.user);                                                                
-                    else MessageBox.Show("This PC is now UNLOCKED.");                                                             
+                    if (lockPc == 1)
+                        MessageBox.Show("This PC is now LOCKED.\n\nUser authorized on this PC:\n" + cert.user);
+                    else MessageBox.Show("This PC is now UNLOCKED.");
                 }
 
                 queryUser = from u in database.Users
-                                where u.Username == cert.user
-                                select u;
+                            where u.Username == cert.user
+                            select u;
 
                 queryPC = from u in database.Computers
-                              where u.PC_name == Environment.MachineName
-                              select u;
+                          where u.PC_name == Environment.MachineName
+                          select u;
 
                 var queryAuth = from a in database.Auths
                                 where a.ID_user == queryUser.First().ID && a.ID_pc == queryPC.First().ID
@@ -116,7 +117,7 @@ namespace Emplokey
                         ID_pc = queryPC.First().ID,
                         ID_user = queryUser.First().ID,
                         Auth_key = cert.HashedAuthKey,
-                        Device = cert.deviceId                        
+                        Device = cert.deviceId
                     };
 
                     database.Auths.InsertOnSubmit(newAuth);
@@ -125,12 +126,16 @@ namespace Emplokey
                 else if (lockPc == 0)
                 {
                     database.Auths.DeleteOnSubmit(queryAuth.First());
-                }                
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            }            
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
 
         public bool GetPcLockStatus(ServerInfo serverInfo)
@@ -163,119 +168,148 @@ namespace Emplokey
                 MessageBox.Show(ex.Message);
                 return false;
             }
+            finally
+            {
+                connection.Close();
+            }
         }
 
         public bool TryToAuthorize(ServerInfo serverInfo, Cert cert)
         {
-            if (cert.loaded)
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
+            SqlConnection connection = new SqlConnection(connString);
+            DataClassesDataContext database = new DataClassesDataContext();
+
+            try
             {
-                string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
-                SqlConnection connection = new SqlConnection(connString);
-                DataClassesDataContext database = new DataClassesDataContext();
+                connection.Open();
 
-                try
+                if (cert.userType == "admin")
                 {
-                    connection.Open();
+                    var queryAuth = from a in database.Auths
+                                    join u in database.Users on a.ID_user equals u.ID
+                                    join c in database.Computers on a.ID_pc equals c.ID
+                                    where u.Username == cert.user && a.Device == cert.deviceId
+                                    select new
+                                    {
+                                        u.Type,
+                                        a.Auth_key
+                                    };
 
-                    if (cert.userType == "admin")
-                    {
-                        var queryAuth = from a in database.Auths
-                                        join u in database.Users on a.ID_user equals u.ID
-                                        join c in database.Computers on a.ID_pc equals c.ID
-                                        where u.Username == cert.user && a.Device == cert.deviceId
-                                        select new
-                                        {
-                                            u.Type,
-                                            a.Auth_key
-                                        };
-
-                        if (!queryAuth.Any())
-                            return false;
-                        else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
-                            return true;
-                        else
-                            return false;
-                    }
+                    if (!queryAuth.Any())
+                        return false;
+                    else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
+                        return true;
                     else
-                    {
-                        var queryAuth = from a in database.Auths
-                                        join u in database.Users on a.ID_user equals u.ID
-                                        join c in database.Computers on a.ID_pc equals c.ID
-                                        where u.Username == cert.user && c.PC_name == cert.pcName
-                                        select new
-                                        {
-                                            u.Type,
-                                            a.Auth_key
-                                        };
-
-                        if (queryAuth.Count() == 0)
-                            return false;
-                        else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
-                            return true;
-                        else
-                            return false;
-                    }
-
+                        return false;
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show(ex.Message);
+                    var queryAuth = from a in database.Auths
+                                    join u in database.Users on a.ID_user equals u.ID
+                                    join c in database.Computers on a.ID_pc equals c.ID
+                                    where u.Username == cert.user && c.PC_name == cert.pcName
+                                    select new
+                                    {
+                                        u.Type,
+                                        a.Auth_key
+                                    };
+
+                    if (queryAuth.Count() == 0)
+                        return false;
+                    else if (queryAuth.First().Auth_key == cert.HashedAuthKey)
+                        return true;
+                    else
+                        return false;
                 }
 
-                return false;
             }
-            else
+            catch (Exception ex)
             {
-                return false;
-            }            
-        }               
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return false;
+        }
 
         public int StartSession(ServerInfo serverInfo, Cert cert)
         {
             string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
-            connection.Open();
             DataClassesDataContext database = new DataClassesDataContext();
 
-            var queryAuth = from a in database.Auths
-                            join u in database.Users on a.ID_user equals u.ID
-                            where a.Auth_key == cert.HashedAuthKey && u.Username == cert.user
-                            select new
-                            {
-                                a.ID_pc,
-                                a.ID_user                                
-                            };
-
-            var queryPC = from c in database.Computers
-                          where c.PC_name == SystemInformation.ComputerName
-                          select c;
-
-            Log newLog = new Log()
+            try
             {
-                ID_pc = queryPC.First().ID,
-                ID_user = queryAuth.First().ID_user,
-                Time_login = DateTime.Now
-            };
+                connection.Open();
+                var queryAuth = from a in database.Auths
+                                join u in database.Users on a.ID_user equals u.ID
+                                where a.Auth_key == cert.HashedAuthKey && u.Username == cert.user
+                                select new
+                                {
+                                    a.ID_pc,
+                                    a.ID_user
+                                };
 
-            database.Logs.InsertOnSubmit(newLog);
-            database.SubmitChanges();
+                var queryPC = from c in database.Computers
+                              where c.PC_name == SystemInformation.ComputerName
+                              select c;
 
-            return newLog.ID;
+                Log newLog = new Log()
+                {
+                    ID_pc = queryPC.First().ID,
+                    ID_user = queryAuth.First().ID_user,
+                    Time_login = DateTime.Now
+                };
+
+                database.Logs.InsertOnSubmit(newLog);
+                database.SubmitChanges();
+
+                return newLog.ID;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return 0;
         }
 
         public void EndSession(ServerInfo serverInfo, int sessionId)
         {
             string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
             SqlConnection connection = new SqlConnection(connString);
-            connection.Open();
             DataClassesDataContext database = new DataClassesDataContext();
 
-            var queryLogs = from l in database.Logs
-                            where l.ID == sessionId
-                            select l;
+            try
+            {
+                connection.Open();
 
-            queryLogs.First().Time_logout = DateTime.Now;
-            database.SubmitChanges();
+                var queryLogs = from l in database.Logs
+                                where l.ID == sessionId
+                                select l;
+
+                if (queryLogs.Any())
+                {
+                    queryLogs.First().Time_logout = DateTime.Now;
+                    database.SubmitChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
     }
 }

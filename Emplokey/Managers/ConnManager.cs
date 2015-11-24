@@ -10,7 +10,7 @@ namespace Emplokey
     public class ConnManager
     {
         public void SaveServerInfo(ServerInfo serverInfo)
-        {            
+        {
             if (!File.Exists(settingsHelper.userPath + settingsHelper.defaultSettingsFile))
             {
                 XDocument xSettings = new XDocument(
@@ -18,7 +18,7 @@ namespace Emplokey
                 new XElement(settingsHelper.xNameSpace + "Emplokey_settings",
                     new XElement("Server",
                         new XElement("Address", serverInfo.address),
-                        new XElement("DbName", serverInfo.dbName)                  
+                        new XElement("DbName", serverInfo.dbName)
                     )));
 
                 xSettings.Save(settingsHelper.userPath + settingsHelper.defaultSettingsFile);
@@ -54,25 +54,28 @@ namespace Emplokey
             }
 
             return newServerInfo;
-        }      
-        
+        }
+
         public bool TryToConnect(ServerInfo serverInfo)
         {
             string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
+            SqlConnection connection = new SqlConnection(connString);
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(connString))
-                {
-                    connection.Open();
-                }
-                    return true;
+                connection.Open();
+
+                return true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 return false;
             }
-        }  
+            finally
+            {
+                connection.Close();
+            }
+        }
     }
 }

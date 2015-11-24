@@ -4,6 +4,7 @@ using System.Management;
 using System.Linq;
 using System;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Emplokey
 {
@@ -78,7 +79,8 @@ namespace Emplokey
                 thread.Join();
             }
             catch (Exception ex)
-            {                
+            {
+                MessageBox.Show(ex.Message);
             }
 
             return deviceId;
