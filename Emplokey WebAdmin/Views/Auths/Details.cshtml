@@ -1,0 +1,50 @@
+﻿@model Emplokey_WebAdmin.Auths
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Auths</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ID_user)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ID_user)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ID_pc)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ID_pc)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Auth_key)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Auth_key)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Device)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Device)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

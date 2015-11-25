@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using System.Collections.Generic;
 
 namespace Emplokey
 {
@@ -71,6 +72,42 @@ namespace Emplokey
             {
                 MessageBox.Show(ex.Message);
                 return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+
+        public void ConfirmActivity(ServerInfo serverInfo, List<Cert> certList)
+        {
+            string connString = String.Format(settingsHelper.connectionString, serverInfo.address);
+            SqlConnection connection = new SqlConnection(connString);
+            DataClassesDataContext database = new DataClassesDataContext();
+
+            try
+            {
+                connection.Open();
+
+                foreach (var cert in certList)
+                {
+                    var queryRequest = from r in database.Requests
+                                       join l in database.Logs on r.LogId equals l.ID
+                                       join u in database.Users on l.ID_user equals u.ID
+                                       join c in database.Computers on l.ID_pc equals c.ID
+                                       where u.Username == cert.user && c.PC_name == SystemInformation.ComputerName
+                                       select r;
+
+                    if (queryRequest.Any())
+                    {
+                        queryRequest.First().Confirmed = 1;
+                        database.SubmitChanges();
+                    }                        
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
             finally
             {

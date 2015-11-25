@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Emplokey</RootNamespace>
     <AssemblyName>Emplokey</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -57,9 +57,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DataClasses.dbml</DependentUpon>
     </Compile>
-    <Compile Include="Objects\Cert.cs" />
-    <Compile Include="Managers\CertManager.cs" />
-    <Compile Include="Managers\ConnManager.cs" />
     <Compile Include="Forms\DriveDetector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -75,9 +72,12 @@
     <Compile Include="Forms\Form_certificates.Designer.cs">
       <DependentUpon>Form_certificates.cs</DependentUpon>
     </Compile>
+    <Compile Include="Managers\CertManager.cs" />
+    <Compile Include="Managers\ConnManager.cs" />
+    <Compile Include="Objects\Cert.cs" />
+    <Compile Include="Objects\ServerInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Objects\ServerInfo.cs" />
     <Compile Include="settingsHelper.cs" />
     <None Include="DataClasses.dbml.layout">
       <DependentUpon>DataClasses.dbml</DependentUpon>

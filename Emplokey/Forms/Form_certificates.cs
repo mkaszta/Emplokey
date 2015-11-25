@@ -4,10 +4,11 @@ using Dolinay;
 using System.IO;
 using System.Collections.Generic;
 
+
 namespace Emplokey
 {
     public partial class Form_certificates : Form
-    {
+    {        
         private DriveDetector driveDetector = null;
         ServerInfo serverInfo = new ServerInfo();
         CertManager certMgr = new CertManager();

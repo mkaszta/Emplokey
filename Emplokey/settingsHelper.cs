@@ -22,7 +22,10 @@ namespace Emplokey
         // Gets local user path for AppData
         public static string userPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Local\\EmploKey\\";
 
-        // COunter used for auto-lock
+        // Counter used for auto-lock
         public static int counter = 30;
+
+        // Delay for requests checker (2 mins)
+        public static int requestDelay = 120000;
     }
 }

@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Emplokey_WebAdmin.Models.StatisticsModel>
+
+@{
+    ViewBag.Title = "Statistics";
+}
+
+<h2>Statistics</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.date)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.pcName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.timeSpentString)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.date)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.pcName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.timeSpentString)
+        </td>
+    </tr>
+}
+
+</table>

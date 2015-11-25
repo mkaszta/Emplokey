@@ -14,7 +14,8 @@ namespace Emplokey
         public string user { get; set; }
         public string userType { get; set; }
         public string pcName { get; set; }
-        public bool loaded = false;        
+        public bool loaded = false;
+        public bool authorized = false;     
 
         public string deviceId
         {

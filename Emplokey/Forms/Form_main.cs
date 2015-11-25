@@ -26,8 +26,10 @@ namespace Emplokey
 
         int sessionID = 0;
         
-        public static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        public static CancellationToken cancellationToken = cancellationTokenSource.Token;
+        public static CancellationTokenSource LockingCancellationTokenSource = new CancellationTokenSource();
+        public static CancellationToken LockingCancellationToken = LockingCancellationTokenSource.Token;
+        public static CancellationTokenSource ActivityCancellationTokenSource = new CancellationTokenSource();
+        public static CancellationToken ActivityCancellationToken = ActivityCancellationTokenSource.Token;
 
         public Form_main()
         {
@@ -103,8 +105,8 @@ namespace Emplokey
 
         private void CheckStatuses()
         {
-            //Thread thread = new Thread(() =>
-            //{
+            Thread thread = new Thread(() =>
+            {
                 connected = connMgr.TryToConnect(serverInfo);
                 if (connected)
                 {
@@ -114,23 +116,33 @@ namespace Emplokey
                         authorized = certMgr.TryToAuthorize(serverInfo, masterCert);
                         if (authorized)
                         {
-                            cancellationTokenSource.Cancel();
+                            masterCert.authorized = true;
+
+                            LockingCancellationTokenSource.Cancel();
                             sessionID = certMgr.StartSession(serverInfo, masterCert);
+
+                            ActivityCancellationTokenSource = new CancellationTokenSource();
+                            ActivityCancellationToken = ActivityCancellationTokenSource.Token;
+                            Task.Factory.StartNew(() => ActivityProccess());
                         }                            
                         else
-                        {                            
-                            cancellationTokenSource = new CancellationTokenSource();
-                            cancellationToken = cancellationTokenSource.Token;
-                            Task.Factory.StartNew(() => LockingProcess(), cancellationToken);
+                        {
+                            masterCert.authorized = false;
+
+                            ActivityCancellationTokenSource.Cancel();
+
+                            LockingCancellationTokenSource = new CancellationTokenSource();
+                            LockingCancellationToken = LockingCancellationTokenSource.Token;
+                            Task.Factory.StartNew(() => LockingProcess(), LockingCancellationToken);
                         }
                     }
-                    else cancellationTokenSource.Cancel();
+                    else LockingCancellationTokenSource.Cancel();
                 }
-                else cancellationTokenSource.Cancel();
-            //});
+                else LockingCancellationTokenSource.Cancel();
+            });
 
-            //thread.Start();
-            //thread.Join();
+            thread.Start();
+            thread.Join();
         }
 
         private void LockingProcess()
@@ -139,7 +151,7 @@ namespace Emplokey
             {
                 for (int i = settingsHelper.counter; i >= 0; i--)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    LockingCancellationToken.ThrowIfCancellationRequested();
 
                     if (labelCounting.InvokeRequired)
                         labelCounting.Invoke(new Action(() => labelCounting.Text = i.ToString() + "s. to lock!"));
@@ -151,6 +163,16 @@ namespace Emplokey
             catch (OperationCanceledException)
             {
                 labelCounting.Invoke(new Action(() => labelCounting.Text = ""));
+            }
+        }
+
+        private void ActivityProccess()
+        {
+            while (true)
+            {
+                ActivityCancellationToken.ThrowIfCancellationRequested();
+                connMgr.ConfirmActivity(serverInfo, certList);
+                Thread.Sleep(settingsHelper.requestDelay);
             }
         }
 

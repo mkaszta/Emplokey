@@ -42,6 +42,9 @@ namespace Emplokey
     partial void InsertLog(Log instance);
     partial void UpdateLog(Log instance);
     partial void DeleteLog(Log instance);
+    partial void InsertRequest(Request instance);
+    partial void UpdateRequest(Request instance);
+    partial void DeleteRequest(Request instance);
     #endregion
 		
 		public DataClassesDataContext() : 
@@ -103,6 +106,14 @@ namespace Emplokey
 			get
 			{
 				return this.GetTable<Log>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Request> Requests
+		{
+			get
+			{
+				return this.GetTable<Request>();
 			}
 		}
 	}
@@ -618,6 +629,116 @@ namespace Emplokey
 					this._Time_logout = value;
 					this.SendPropertyChanged("Time_logout");
 					this.OnTime_logoutChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Requests")]
+	public partial class Request : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _Id;
+		
+		private int _LogId;
+		
+		private int _Confirmed;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIdChanging(int value);
+    partial void OnIdChanged();
+    partial void OnLogIdChanging(int value);
+    partial void OnLogIdChanged();
+    partial void OnConfirmedChanging(int value);
+    partial void OnConfirmedChanged();
+    #endregion
+		
+		public Request()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int Id
+		{
+			get
+			{
+				return this._Id;
+			}
+			set
+			{
+				if ((this._Id != value))
+				{
+					this.OnIdChanging(value);
+					this.SendPropertyChanging();
+					this._Id = value;
+					this.SendPropertyChanged("Id");
+					this.OnIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LogId", DbType="Int NOT NULL")]
+		public int LogId
+		{
+			get
+			{
+				return this._LogId;
+			}
+			set
+			{
+				if ((this._LogId != value))
+				{
+					this.OnLogIdChanging(value);
+					this.SendPropertyChanging();
+					this._LogId = value;
+					this.SendPropertyChanged("LogId");
+					this.OnLogIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Confirmed", DbType="Int NOT NULL")]
+		public int Confirmed
+		{
+			get
+			{
+				return this._Confirmed;
+			}
+			set
+			{
+				if ((this._Confirmed != value))
+				{
+					this.OnConfirmedChanging(value);
+					this.SendPropertyChanging();
+					this._Confirmed = value;
+					this.SendPropertyChanged("Confirmed");
+					this.OnConfirmedChanged();
 				}
 			}
 		}
